@@ -24,5 +24,10 @@ public:
         const std::vector<std::string>& column_names,
         const std::vector<ColumnType>& column_types
     ) -> void;
+
+    auto insert_data(
+        const std::string& table_name,
+        const std::vector<std::string>& data
+    ) -> void;
 };
 

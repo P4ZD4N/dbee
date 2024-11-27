@@ -1,4 +1,3 @@
-#include <iostream>
 #include <fmt/ranges.h>
 #include "database.h"
 
@@ -15,6 +14,8 @@ int main() {
         std::vector<std::string>{"name", "age"},
         std::vector{ColumnType::TEXT, ColumnType::INTEGER}
     );
+
+    db1.insert_data("Users", std::vector<std::string>{"name", "age"});
 
     return 0;
 }

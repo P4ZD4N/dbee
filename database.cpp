@@ -18,3 +18,14 @@ auto Database::create_table(
     fmt::println("Successfully created table with name: '{}' in database with name: '{}'", name, this->name);
 }
 
+auto Database::insert_data(const std::string& table_name, const std::vector<std::string>& data) -> void {
+
+    if (!tables.contains(table_name)) throw std::runtime_error(
+        "Table with name '" + table_name + "' does not exist in database with name: '" + this->name + "!");
+
+    tables.at(table_name).insert_row(data);
+
+    fmt::println("Successfully inserted data into table: '{}' in database with name: '{}'", table_name, this->name);
+}
+
+
