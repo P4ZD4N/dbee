@@ -1,9 +1,9 @@
 #pragma once
 
+#include <regex>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <fmt/ranges.h>
 
 #include "enums/columntype.h"
 
@@ -22,11 +22,6 @@ struct Table {
             throw std::invalid_argument("Number of column names and column types must be equal!");
     }
 
-    auto insert_row(const std::vector<std::string>& data) -> void {
-
-        if (data.size() != column_names.size()) throw std::invalid_argument("Row size does not match the number of columns!");
-
-        rows.push_back(data);
-    }
+    auto insert_row(const std::vector<std::string>& data) -> void;
 };
 

@@ -11,11 +11,11 @@ int main() {
 
     db1.create_table(
         "Users",
-        std::vector<std::string>{"name", "age"},
-        std::vector{ColumnType::TEXT, ColumnType::INTEGER}
+        std::vector<std::string>{"name", "age", "height"},
+        std::vector{ColumnType::TEXT, ColumnType::INTEGER, ColumnType::FLOAT}
     );
 
-    db1.insert_data("Users", std::vector<std::string>{"name", "age"});
+    db1.insert_data("Users", std::vector<std::string>{"name", "15", "1.8"});
 
     return 0;
 }
