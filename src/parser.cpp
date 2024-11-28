@@ -43,6 +43,24 @@ auto Parser::parse_query(const std::string& query) -> void {
                 fmt::println("{}", table.get_data_from(column_name));
             }
         }
+    } else if (query_elements.at(0) == "INSERT") {
+        if (query_elements.at(1) == "INTO") {
+
+            const auto obligatory_values_clause = std::string("VALUES");
+            const auto values_clause_index = find_index(query_elements, obligatory_values_clause);
+
+            if (values_clause_index == -1)
+                throw std::invalid_argument("Query with INSERT clause should contain VALUES clause!");
+
+            const auto table_name = query_elements.at(2);
+            auto values = std::vector(query_elements.begin() + values_clause_index + 1, query_elements.end());
+
+            for (auto& value : values) std::erase(value, ',');
+
+            database.insert_data(table_name, values);
+        } else {
+            fmt::println("Query with INSERT clause should contain INTO clause!");
+        }
     } else {
         fmt::println("Unknown command: {}", query_elements.at(0));
     }
