@@ -33,6 +33,31 @@ auto Table::insert_row(const std::vector<std::string>& data) -> void {
 }
 
 auto Table::get_data() const -> std::vector<std::vector<std::string> > {
-
     return rows;
 }
+
+auto Table::get_data_from(const std::string& column_name) const -> std::vector<std::string> {
+
+    const auto column_index = find_index(column_names, column_name);
+
+    if (column_index == -1) throw std::invalid_argument("Column with name '" + column_name + "' not found in table with name: '" + name + "'");
+
+    auto data = std::vector<std::string>{};
+
+    for (auto row : rows) {
+        data.push_back(row.at(column_index));
+    }
+
+    return data;
+}
+
+auto Table::find_index(const std::vector<std::string> &vec, const std::string &value) -> int {
+
+    for (int i = 0; i < vec.size(); ++i) {
+        if (vec[i] == value) return i;
+    }
+
+    return -1;
+}
+
+

@@ -24,6 +24,10 @@ public:
     }
 
     auto insert_row(const std::vector<std::string>& data) -> void;
-    auto get_data() const -> std::vector<std::vector<std::string>>;
+    [[nodiscard]] auto get_data() const -> std::vector<std::vector<std::string>>;
+    [[nodiscard]] auto get_data_from(const std::string& column_name) const -> std::vector<std::string>;
+
+private:
+    static auto find_index(const std::vector<std::string>& vec, const std::string& value) -> int;
 };
 

@@ -9,13 +9,20 @@ int main() {
 
     db1.create_table(
         "users",
-        std::vector<std::string>{"name", "age", "height"},
-        std::vector{ColumnType::TEXT, ColumnType::INTEGER, ColumnType::FLOAT}
+        std::vector<std::string>{"name", "age", "height", "weight"},
+        std::vector{ColumnType::TEXT, ColumnType::INTEGER, ColumnType::FLOAT, ColumnType::FLOAT}
     );
 
-    db1.insert_data("users", std::vector<std::string>{"Michal", "18", "1.83"});
-    db1.insert_data("users", std::vector<std::string>{"Pablo", "16", "1.71"});
-    db1.insert_data("users", std::vector<std::string>{"Antonio", "20", "1.95"});
+    db1.create_table(
+        "pets",
+        std::vector<std::string>{"name", "weight"},
+        std::vector{ColumnType::TEXT, ColumnType::FLOAT}
+    );
+
+    db1.insert_data("users", std::vector<std::string>{"Michal", "18", "1.83", "83"});
+    db1.insert_data("users", std::vector<std::string>{"Pablo", "16", "1.71", "75"});
+    db1.insert_data("users", std::vector<std::string>{"Antonio", "20", "1.95", "79"});
+    db1.insert_data("pets", std::vector<std::string>{"Pusia", "25.5"});
 
     auto desired_db_name = std::string();
     for (const auto& db : Database::databases) {

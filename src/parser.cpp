@@ -28,7 +28,19 @@ auto Parser::parse_query(const std::string& query) -> void {
         if (column_names.size() == 1 and column_names.at(0) == "*") {
             for (const auto& table_name : table_names) {
                 auto table = database.tables.find(table_name)->second;
-                fmt::println("{}", table.rows);
+                fmt::println("{}", table.get_data());
+            }
+            return;
+        }
+
+        for (auto column_name : column_names) {
+            std::erase(column_name, ',');
+
+            for (auto table_name : table_names) {
+                std::erase(table_name, ',');
+
+                auto table = database.tables.find(table_name)->second;
+                fmt::println("{}", table.get_data_from(column_name));
             }
         }
     } else {
