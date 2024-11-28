@@ -18,5 +18,8 @@ add_executable(dbee main.cpp
         database.cpp
         enums/columntype.h
         parser.cpp
-        parser.h)
+        parser.h
+        enums/constraint.h
+        constraintchecker.cpp
+        constraintchecker.h)
 target_link_libraries(dbee fmt)

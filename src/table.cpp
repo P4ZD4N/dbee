@@ -1,8 +1,13 @@
 #include "table.h"
 
+#include "constraintchecker.h"
+
 auto Table::insert_row(const std::vector<std::string>& data) -> void {
+
     if (data.size() != column_names.size())
         throw std::invalid_argument("Row size does not match the number of columns!");
+
+    ConstraintChecker::check_data(data, column_constraints, *this);
 
     const std::regex integer_regex(R"(^[-+]?[0-9]+$)");
     const std::regex float_regex(R"(^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$)");
