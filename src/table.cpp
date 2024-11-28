@@ -31,3 +31,8 @@ auto Table::insert_row(const std::vector<std::string>& data) -> void {
 
     rows.push_back(data);
 }
+
+auto Table::get_data() const -> std::vector<std::vector<std::string> > {
+
+    return rows;
+}

@@ -16,5 +16,7 @@ FetchContent_MakeAvailable(fmt)
 add_executable(dbee main.cpp
         table.cpp
         database.cpp
-        enums/columntype.h)
+        enums/columntype.h
+        parser.cpp
+        parser.h)
 target_link_libraries(dbee fmt)

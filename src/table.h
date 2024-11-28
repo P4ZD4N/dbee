@@ -7,7 +7,8 @@
 
 #include "enums/columntype.h"
 
-struct Table {
+class Table {
+public:
     std::string name;
     std::vector<std::string> column_names;
     std::vector<ColumnType> column_types;
@@ -23,5 +24,6 @@ struct Table {
     }
 
     auto insert_row(const std::vector<std::string>& data) -> void;
+    auto get_data() const -> std::vector<std::vector<std::string>>;
 };
 

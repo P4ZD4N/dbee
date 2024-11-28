@@ -8,14 +8,15 @@
 
 class Database {
 
+public:
     std::string name;
     std::unordered_map<std::string, Table> tables;
+    static std::vector<Database*> databases;
 
-public:
-    static std::unordered_map<std::string, Database> databases;
+    Database() = default;
 
     explicit Database(const std::string& name) : name(name) {
-        databases.insert({name, *this});
+        databases.push_back(this);
         fmt::println("Successfully created database with name: '{}'", name);
     }
 

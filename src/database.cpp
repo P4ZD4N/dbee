@@ -1,8 +1,9 @@
 #include "database.h"
 
 #include <stdexcept>
+#include <vector>
 
-std::unordered_map<std::string, Database> Database::databases;
+std::vector<Database*> Database::databases;
 
 auto Database::create_table(
     const std::string& name,
