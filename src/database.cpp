@@ -31,6 +31,11 @@ auto Database::insert_data(const std::string& table_name, const std::vector<std:
 }
 
 auto Database::get_table_by_name(const std::string &table_name) -> Table& {
+
+    if (!tables.contains(table_name)) throw std::runtime_error(
+        "Table with name '" + table_name + "' does not exist in database with name: '" + this->name + "!");
+
+
     return tables.at(table_name);
 }
 
