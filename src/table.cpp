@@ -1,5 +1,6 @@
-#include "table.h"
+#include <fmt/ranges.h>
 
+#include "table.h"
 #include "constraintchecker.h"
 
 auto Table::insert_row(const std::vector<std::string>& data) -> void {
@@ -64,5 +65,24 @@ auto Table::find_index(const std::vector<std::string> &vec, const std::string &v
 
     return -1;
 }
+
+auto Table::add_column(
+    const std::string& column_name,
+    const ColumnType& column_type,
+    const std::vector<Constraint>& new_column_constraints
+) -> void {
+
+    const auto column_index = find_index(column_names, column_name);
+
+    if (column_index != -1)
+        throw std::invalid_argument("Column with name '" + column_name + "' already exists in table with name: '" + name + "'");
+
+    column_names.push_back(column_name);
+    column_types.push_back(column_type);
+    column_constraints.push_back(new_column_constraints);
+
+    fmt::println("Successfully added column with name: '{}' to table with name name: '{}'", column_name, name);
+}
+
 
 

@@ -30,4 +30,9 @@ auto Database::insert_data(const std::string& table_name, const std::vector<std:
     fmt::println("Successfully inserted data into table: '{}' in database with name: '{}'", table_name, this->name);
 }
 
+auto Database::get_table_by_name(const std::string &table_name) -> Table& {
+    return tables.at(table_name);
+}
+
+
 

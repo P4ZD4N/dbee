@@ -31,5 +31,9 @@ public:
         const std::string& table_name,
         const std::vector<std::string>& data
     ) -> void;
+
+    auto get_table_by_name(
+        const std::string& table_name
+    ) -> Table&;
 };
 

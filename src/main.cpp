@@ -26,6 +26,10 @@ int main() {
     db1.insert_data("users", std::vector<std::string>{"3", "Antonio", "20", "1.95", "79"});
     db1.insert_data("pets", std::vector<std::string>{"1", "Pusia", "25.5"});
 
+    db1.get_table_by_name("users").add_column("city", ColumnType::TEXT, std::vector{Constraint::NOT_NULL});
+
+    db1.insert_data("users", std::vector<std::string>{"4", "Antonio", "20", "1.95", "79", "Warsaw"});
+
     auto desired_db_name = std::string();
     for (const auto& db : Database::databases) {
         fmt::println("- {}", db->name);
