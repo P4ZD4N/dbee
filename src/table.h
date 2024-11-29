@@ -33,6 +33,7 @@ public:
     [[nodiscard]] auto get_data() const -> std::vector<std::vector<std::string>>;
     [[nodiscard]] auto get_data_from(const std::string& column_name) const -> std::vector<std::string>;
     auto add_column(const std::string& column_name, const ColumnType& column_type, const std::vector<Constraint>& new_column_constraints) -> void;
+    auto remove_column(const std::string& column_name) -> void;
 
 private:
     static auto find_index(const std::vector<std::string>& vec, const std::string& value) -> int;

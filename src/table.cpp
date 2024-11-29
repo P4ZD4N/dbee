@@ -84,5 +84,22 @@ auto Table::add_column(
     fmt::println("Successfully added column with name: '{}' to table with name name: '{}'", column_name, name);
 }
 
+auto Table::remove_column(const std::string &column_name) -> void {
+
+    const auto column_index = find_index(column_names, column_name);
+
+    if (column_index == -1)
+        throw std::invalid_argument("Column with name '" + column_name + "' not found in table with name: '" + name + "'");
+
+    column_names.erase(column_names.begin() + column_index);
+
+    for (auto &row : rows) {
+        if (column_index < row.size()) row.erase(row.begin() + column_index);
+    }
+
+    fmt::println("Successfully removed column with name: '{}' from table with name name: '{}'", column_name, name);
+}
+
+
 
 

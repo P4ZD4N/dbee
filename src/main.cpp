@@ -30,6 +30,8 @@ int main() {
 
     db1.insert_data("users", std::vector<std::string>{"4", "Antonio", "20", "1.95", "79", "Warsaw"});
 
+    db1.get_table_by_name("users").remove_column("name");
+
     auto desired_db_name = std::string();
     for (const auto& db : Database::databases) {
         fmt::println("- {}", db->name);
