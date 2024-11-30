@@ -61,6 +61,31 @@ auto Parser::parse_query(const std::string& query) -> void {
         } else {
             fmt::println("Query with INSERT clause should contain INTO clause!");
         }
+    } else if (query_elements.at(0) == "ALTER") {
+        if (query_elements.at(1) == "TABLE") {
+
+            const auto obligatory_column_clause = std::string("COLUMN");
+            const auto column_clause_index = find_index(query_elements, obligatory_column_clause);
+            const auto operation_clause_index = column_clause_index - 1;
+            const auto table_name = query_elements.at(2);
+
+            if (column_clause_index == -1)
+                throw std::invalid_argument("Query with ALTER clause should contain COLUMN clause!");
+
+            if (query_elements.at(operation_clause_index) == "ADD") {
+                const auto new_column_name = query_elements.at(column_clause_index + 1);
+                const auto new_column_type = query_elements.at(column_clause_index + 2);
+                const auto new_column_constraints = std::vector(
+                    query_elements.begin() + column_clause_index + 3, query_elements.end());
+
+                database.get_table_by_name(table_name).add_column(
+                    new_column_name,
+                    string_to_column_type(new_column_type),
+                    strings_to_constraints(new_column_constraints));
+            } else throw std::invalid_argument("Query with ALTER clause should contain operation clause before COLUMN clause!");
+        } else {
+            fmt::println("Query with ALTER clause should contain TABLE clause!");
+        }
     } else {
         fmt::println("Unknown command: {}", query_elements.at(0));
     }

@@ -81,6 +81,8 @@ auto Table::add_column(
     column_types.push_back(column_type);
     column_constraints.push_back(new_column_constraints);
 
+    for (auto& row : rows) row.push_back("");
+
     fmt::println("Successfully added column with name: '{}' to table with name name: '{}'", column_name, name);
 }
 
@@ -92,9 +94,11 @@ auto Table::remove_column(const std::string &column_name) -> void {
         throw std::invalid_argument("Column with name '" + column_name + "' not found in table with name: '" + name + "'");
 
     column_names.erase(column_names.begin() + column_index);
+    column_types.erase(column_types.begin() + column_index);
+    column_constraints.erase(column_constraints.begin() + column_index);
 
     for (auto &row : rows) {
-        if (column_index < row.size()) row.erase(row.begin() + column_index);
+        row.erase(row.begin() + column_index);
     }
 
     fmt::println("Successfully removed column with name: '{}' from table with name name: '{}'", column_name, name);

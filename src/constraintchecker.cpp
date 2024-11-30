@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 
+#include "fmt/xchar.h"
+
 auto ConstraintChecker::check_data(
     const std::vector<std::string> &data,
     const std::vector<std::vector<Constraint>> &constraints,
