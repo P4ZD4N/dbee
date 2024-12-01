@@ -2,13 +2,14 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 #include "database.h"
 
 class Parser {
 
 public:
-    Database database;
+    std::optional<Database> database;
 
     Parser() = default;
 

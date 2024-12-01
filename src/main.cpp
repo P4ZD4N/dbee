@@ -30,24 +30,10 @@ int main() {
 
     db1.insert_data("users", std::vector<std::string>{"4", "Antonio", "20", "1.95", "79", "Warsaw"});
 
-    auto desired_db_name = std::string();
-    for (const auto& db : Database::databases) {
-        fmt::println("- {}", db->name);
-    }
-    fmt::println("Choose database: ");
-    std::cin >> desired_db_name;
-    std::cin.ignore();
-
     auto parser = Parser();
-    for (const auto& db : Database::databases) {
-        if (db->name == desired_db_name) {
-            parser = Parser(*db);
-            break;
-        }
-    }
-
     auto query = std::string();
     while (true) {
+        fmt::print("Query: ");
         std::getline(std::cin, query);
 
         if (query.empty()) break;

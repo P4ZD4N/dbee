@@ -15,7 +15,25 @@ auto Parser::parse_query(const std::string& query) -> void {
         query_elements.push_back(query_element);
     }
 
-    if (query_elements.at(0) == "SELECT") {
+    if (query_elements.at(0) == "DATABASE") {
+        if (query_elements.at(1) == "CREATE") {
+            const auto& database_name = query_elements.at(2);
+            Database::create_database(database_name);
+        } else if (query_elements.at(1) == "USE") {
+            const auto& database_name = query_elements.at(2);
+            database = Database::get_database(database_name);
+        } else if (query_elements.at(1) == "DROP") {
+            const auto& database_name = query_elements.at(2);
+            Database::drop_database(database_name);
+        } else throw std::invalid_argument(
+            "Query with DATABASE clause should contain correct operation clause after DATABASE clause!");
+    } else if (query_elements.at(0) == "SELECT") {
+
+        if (!database.has_value()) {
+            fmt::println("No database selected. Please select it with 'DATABASE USE [...]'!");
+            return;
+        }
+
         const auto obligatory_from_clause = std::string("FROM");
         const auto from_clause_index = find_index(query_elements, obligatory_from_clause);
 
@@ -27,7 +45,7 @@ auto Parser::parse_query(const std::string& query) -> void {
 
         if (column_names.size() == 1 and column_names.at(0) == "*") {
             for (const auto& table_name : table_names) {
-                auto table = database.tables.find(table_name)->second;
+                auto table = database.value().tables.find(table_name)->second;
                 fmt::println("{}", table.get_data());
             }
             return;
@@ -39,11 +57,17 @@ auto Parser::parse_query(const std::string& query) -> void {
             for (auto table_name : table_names) {
                 std::erase(table_name, ',');
 
-                auto table = database.tables.find(table_name)->second;
+                auto table = database.value().tables.find(table_name)->second;
                 fmt::println("{}", table.get_data_from(column_name));
             }
         }
     } else if (query_elements.at(0) == "INSERT") {
+
+        if (!database.has_value()) {
+            fmt::println("No database selected. Please select it with 'DATABASE USE [...]'!");
+            return;
+        }
+
         if (query_elements.at(1) == "INTO") {
 
             const auto obligatory_values_clause = std::string("VALUES");
@@ -57,11 +81,17 @@ auto Parser::parse_query(const std::string& query) -> void {
 
             for (auto& value : values) std::erase(value, ',');
 
-            database.insert_data(table_name, values);
+            database.value().insert_data(table_name, values);
         } else {
             fmt::println("Query with INSERT clause should contain INTO clause!");
         }
     } else if (query_elements.at(0) == "ALTER") {
+
+        if (!database.has_value()) {
+            fmt::println("No database selected. Please select it with 'DATABASE USE [...]'!");
+            return;
+        }
+
         if (query_elements.at(1) == "TABLE") {
 
             const auto obligatory_column_clause = std::string("COLUMN");
@@ -78,13 +108,13 @@ auto Parser::parse_query(const std::string& query) -> void {
                 const auto new_column_constraints = std::vector(
                     query_elements.begin() + column_clause_index + 3, query_elements.end());
 
-                database.get_table_by_name(table_name).add_column(
+                database.value().get_table_by_name(table_name).add_column(
                     new_column_name,
                     string_to_column_type(new_column_type),
                     strings_to_constraints(new_column_constraints));
             } else if (query_elements.at(operation_clause_index) == "DROP") {
                 const auto& column_to_remove_name = query_elements.at(column_clause_index + 1);
-                database.get_table_by_name(table_name).remove_column(column_to_remove_name);
+                database.value().get_table_by_name(table_name).remove_column(column_to_remove_name);
             } else throw std::invalid_argument("Query with ALTER clause should contain operation clause before COLUMN clause!");
         } else {
             fmt::println("Query with ALTER clause should contain TABLE clause!");

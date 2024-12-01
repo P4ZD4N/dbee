@@ -11,12 +11,12 @@ class Database {
 public:
     std::string name;
     std::unordered_map<std::string, Table> tables;
-    static std::vector<Database*> databases;
+    static std::unordered_map<std::string, Database> databases;
 
     Database() = default;
 
     explicit Database(const std::string& name) : name(name) {
-        databases.push_back(this);
+        databases.insert({name, *this});
         fmt::println("Successfully created database with name: '{}'", name);
     }
 
@@ -35,5 +35,11 @@ public:
     auto get_table_by_name(
         const std::string& table_name
     ) -> Table&;
+
+    static auto create_database(const std::string& database_name) -> void;
+
+    static auto get_database(const std::string& database_name) -> Database&;
+
+    static auto drop_database(const std::string& database_name) -> void;
 };
 
