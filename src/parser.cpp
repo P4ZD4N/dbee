@@ -119,6 +119,39 @@ auto Parser::parse_query(const std::string& query) -> void {
         } else {
             fmt::println("Query with ALTER clause should contain TABLE clause!");
         }
+    } else if (query_elements.at(0) == "TABLE") {
+
+        if (!database.has_value()) {
+            fmt::println("No database selected. Please select it with 'DATABASE USE [...]'!");
+            return;
+        }
+
+        if (query_elements.at(1) == "CREATE") {
+            if (query_elements.at(3) == "WITH" and query_elements.at(4) == "COLUMNS") {
+
+                const auto column_details = std::vector(query_elements.begin() + 5, query_elements.end());
+
+                const auto& table_name = query_elements.at(2);
+                auto column_names = std::vector<std::string>{};
+                auto column_types = std::vector<std::string>{};
+                auto column_constraints_strings = std::vector<std::vector<std::string>>{};
+                auto column_constraints = std::vector<std::vector<Constraint>>{};
+
+                for (auto& particular_column_constraints : column_constraints_strings) {
+                    column_constraints.push_back(strings_to_constraints(particular_column_constraints));
+                }
+
+                database.value().create_table(
+                    table_name,
+                    column_names,
+                    strings_to_column_types(column_types),
+                    column_constraints);
+            } else fmt::println("Query with TABLE CREATE clauses should contain WITH COLUMNS clauses after table name!");
+        } else if (query_elements.at(1) == "DROP") {
+            const auto& table_name = query_elements.at(2);
+
+        } else throw std::invalid_argument(
+            "Query with TABLE clause should contain correct operation clause after TABLE clause!");
     } else {
         fmt::println("Unknown command: {}", query_elements.at(0));
     }
