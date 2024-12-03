@@ -27,6 +27,8 @@ public:
         const std::vector<std::vector<Constraint>>& column_constraints
     ) -> void;
 
+    auto drop_table(const std::string& name) -> void;
+
     auto insert_data(
         const std::string& table_name,
         const std::vector<std::string>& data

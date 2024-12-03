@@ -163,7 +163,7 @@ auto Parser::parse_query(const std::string& query) -> void {
             } else fmt::println("Query with TABLE CREATE clauses should contain WITH COLUMNS clauses after table name!");
         } else if (query_elements.at(1) == "DROP") {
             const auto& table_name = query_elements.at(2);
-
+            database.value().drop_table(table_name);
         } else throw std::invalid_argument(
             "Query with TABLE clause should contain correct operation clause after TABLE clause!");
     } else {

@@ -20,6 +20,16 @@ auto Database::create_table(
     fmt::println("Successfully created table with name: '{}' in database with name: '{}'", name, this->name);
 }
 
+auto Database::drop_table(const std::string& name) -> void {
+
+    if (!tables.contains(name)) throw std::runtime_error("Table with name '" + name + "' does not exist!");
+
+    tables.erase(name);
+
+    fmt::println("Successfully dropped table with name: '{}' in database with name: '{}'", name, this->name);
+}
+
+
 auto Database::insert_data(const std::string& table_name, const std::vector<std::string>& data) -> void {
 
     if (!tables.contains(table_name)) throw std::runtime_error(
@@ -44,6 +54,7 @@ auto Database::create_database(const std::string& database_name) -> void {
         "Database with name '" + database_name + "' already exists!");
 
     auto new_db = Database(database_name);
+    databases.insert({database_name, new_db});
 }
 
 auto Database::get_database(const std::string& database_name) -> Database& {
