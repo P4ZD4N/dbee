@@ -33,7 +33,7 @@ inline auto strings_to_column_types(const std::vector<std::string> vec) -> std::
 
     for (const auto& element: vec) {
         auto it = column_type_map.find(element);
-        if (it != column_type_map.end()) throw std::invalid_argument("Invalid column type: " + element);
+        if (it == column_type_map.end()) throw std::invalid_argument("Invalid column type: " + element);
         newVec.push_back(it->second);
     }
 

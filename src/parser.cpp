@@ -134,11 +134,25 @@ auto Parser::parse_query(const std::string& query) -> void {
                 const auto& table_name = query_elements.at(2);
                 auto column_names = std::vector<std::string>{};
                 auto column_types = std::vector<std::string>{};
-                auto column_constraints_strings = std::vector<std::vector<std::string>>{};
                 auto column_constraints = std::vector<std::vector<Constraint>>{};
 
-                for (auto& particular_column_constraints : column_constraints_strings) {
-                    column_constraints.push_back(strings_to_constraints(particular_column_constraints));
+                for (const auto& detail : column_details) {
+                    auto column_name = std::string(detail.begin(), std::ranges::find(detail, '('));
+                    auto column_type = std::string(std::ranges::find(detail, '(') + 1, std::ranges::find(detail, ')'));
+                    auto column_constraints_string = std::string(std::ranges::find(detail, '[') + 1, std::ranges::find(detail, ']'));
+                    auto constraints = std::vector<std::string>{};
+
+                    auto pos = static_cast<size_t>(0);
+                    while ((pos = column_constraints_string.find(',')) != std::string::npos) {
+                        constraints.push_back(column_constraints_string.substr(0, pos));
+                        column_constraints_string.erase(0, pos + 1);
+                    }
+
+                    if (!column_constraints_string.empty()) constraints.push_back(column_constraints_string);
+
+                    column_names.push_back(column_name);
+                    column_types.push_back(column_type);
+                    column_constraints.push_back(strings_to_constraints(constraints));
                 }
 
                 database.value().create_table(
