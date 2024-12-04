@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <fmt/ranges.h>
 
-#include "table.h"
+#include "../table/table.h"
 
 class Database {
 

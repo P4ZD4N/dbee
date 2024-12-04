@@ -1,3 +1,5 @@
+#include "../enums/columntype.h"
+#include "../enums/constraint.h"
 #include "parser.h"
 
 #include <sstream>

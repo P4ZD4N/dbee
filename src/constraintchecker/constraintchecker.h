@@ -3,8 +3,8 @@
 #include <vector>
 #include <string>
 
-#include "table.h"
-#include "enums/constraint.h"
+#include "../table/table.h"
+#include "../enums/constraint.h"
 
 class ConstraintChecker {
 public:

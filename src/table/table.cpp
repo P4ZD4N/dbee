@@ -1,7 +1,7 @@
 #include <fmt/ranges.h>
 
 #include "table.h"
-#include "constraintchecker.h"
+#include "../constraintchecker/constraintchecker.h"
 
 auto Table::insert_row(const std::vector<std::string>& data) -> void {
 

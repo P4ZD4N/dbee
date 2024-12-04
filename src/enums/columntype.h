@@ -1,5 +1,10 @@
 #pragma once
 
+#include <unordered_map>
+#include <vector>
+#include <string>
+#include <stdexcept>
+
 enum class ColumnType {
     INTEGER,
     TEXT,

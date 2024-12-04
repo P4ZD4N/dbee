@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "enums/columntype.h"
-#include "enums/constraint.h"
+#include "../enums/columntype.h"
+#include "../enums/constraint.h"
 
 class Table {
 public:

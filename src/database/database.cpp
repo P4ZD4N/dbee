@@ -1,4 +1,7 @@
 #include "database.h"
+#include "../enums/columntype.h"
+#include "../enums/constraint.h"
+#include "../table/table.h"
 
 #include <stdexcept>
 #include <vector>

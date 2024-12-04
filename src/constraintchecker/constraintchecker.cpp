@@ -1,4 +1,6 @@
 #include "constraintchecker.h"
+#include "../enums/constraint.h"
+#include "../table/table.h"
 
 #include <stdexcept>
 

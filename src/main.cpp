@@ -1,7 +1,10 @@
 #include <iostream>
 #include <fmt/ranges.h>
-#include "database.h"
-#include "parser.h"
+
+#include "enums/columntype.h"
+#include "enums/constraint.h"
+#include "database/database.h"
+#include "parser/parser.h"
 
 int main() {
     auto db1 = Database("db1");

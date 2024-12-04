@@ -14,12 +14,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmt)
 
 add_executable(dbee main.cpp
-        table.cpp
-        database.cpp
+        table/table.cpp
+        database/database.cpp
         enums/columntype.h
-        parser.cpp
-        parser.h
+        parser/parser.cpp
+        parser/parser.h
         enums/constraint.h
-        constraintchecker.cpp
-        constraintchecker.h)
+        constraintchecker/constraintchecker.cpp
+        constraintchecker/constraintchecker.h)
 target_link_libraries(dbee fmt)
