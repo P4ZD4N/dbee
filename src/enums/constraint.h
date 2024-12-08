@@ -8,7 +8,8 @@
 enum class Constraint {
     NOT_NULL,
     UNIQUE,
-    PRIMARY_KEY
+    PRIMARY_KEY,
+    FOREIGN_KEY
 };
 
 inline auto strings_to_constraints(std::vector<std::string> vec) -> std::vector<Constraint> {
@@ -16,7 +17,8 @@ inline auto strings_to_constraints(std::vector<std::string> vec) -> std::vector<
     static const auto constraint_map = std::unordered_map<std::string, Constraint>{
             {"NOT_NULL", Constraint::NOT_NULL},
             {"UNIQUE", Constraint::UNIQUE},
-            {"PRIMARY_KEY", Constraint::PRIMARY_KEY}
+            {"PRIMARY_KEY", Constraint::PRIMARY_KEY},
+            {"FOREIGN_KEY", Constraint::FOREIGN_KEY}
     };
 
     auto constraint_vec = std::vector<Constraint>{};

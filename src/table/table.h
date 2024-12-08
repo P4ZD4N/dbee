@@ -14,13 +14,21 @@ public:
     std::vector<std::string> column_names;
     std::vector<ColumnType> column_types;
     std::vector<std::vector<Constraint>> column_constraints;
+    std::vector<std::pair<Table, std::string>> column_foreign_keys;
     std::vector<std::vector<std::string>> rows;
+
+    Table() = default;
 
     Table(const std::string& name,
           const std::vector<std::string>& column_names,
           const std::vector<ColumnType>& column_types,
-          const std::vector<std::vector<Constraint>>& column_constraints)
-        : name(name), column_names(column_names), column_types(column_types), column_constraints(column_constraints) {
+          const std::vector<std::vector<Constraint>>& column_constraints,
+          const std::vector<std::pair<Table, std::string>>& column_foreign_keys)
+        : name(name),
+          column_names(column_names),
+          column_types(column_types),
+          column_constraints(column_constraints),
+          column_foreign_keys(column_foreign_keys) {
 
         if (column_names.size() != column_types.size())
             throw std::invalid_argument("Number of column names and column types must be equal!");
@@ -34,8 +42,6 @@ public:
     [[nodiscard]] auto get_data_from(const std::string& column_name) const -> std::vector<std::string>;
     auto add_column(const std::string& column_name, const ColumnType& column_type, const std::vector<Constraint>& new_column_constraints) -> void;
     auto remove_column(const std::string& column_name) -> void;
-
-private:
     static auto find_index(const std::vector<std::string>& vec, const std::string& value) -> int;
 };
 

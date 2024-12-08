@@ -103,7 +103,3 @@ auto Table::remove_column(const std::string &column_name) -> void {
 
     fmt::println("Successfully removed column with name: '{}' from table with name name: '{}'", column_name, name);
 }
-
-
-
-

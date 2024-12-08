@@ -32,6 +32,11 @@ auto ConstraintChecker::check_data(
                     if (!is_primary_key(element, table, i))
                         throw std::runtime_error("Can't insert not unique or NULL data to column with PRIMARY_KEY constraint!");
                 } break;
+
+                case Constraint::FOREIGN_KEY: {
+                    if (!is_foreign_key(element, table, i))
+                        throw std::runtime_error("Can't insert data that violates FOREIGN KEY constraint!");
+                } break;
             }
         }
     }
@@ -55,5 +60,11 @@ auto ConstraintChecker::is_unique(const std::string& searched_element, const Tab
 auto ConstraintChecker::is_primary_key(const std::string& element, const Table& table, const int& column_number) -> bool {
     return !is_null(element) && is_unique(element, table, column_number);
 }
+
+auto ConstraintChecker::is_foreign_key(const std::string &element, const Table &table, const int &column_number) -> bool {
+
+    return true;
+}
+
 
 

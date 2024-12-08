@@ -25,5 +25,11 @@ private:
     auto process_table_query(const std::vector<std::string>& query_elements) -> void;
     [[nodiscard]] auto is_database_selected() const -> bool;
     static auto find_index(const std::vector<std::string>& vec, const std::string& value) -> int;
+    static auto get_foreign_key_from_curly_braces(const std::string& detail) -> std::string;
+    auto is_foreign_key_valid(
+        const std::string& foreign_table_name,
+        const std::string& foreign_column_name,
+        const std::string& column_type
+    ) const -> bool;
 };
 
