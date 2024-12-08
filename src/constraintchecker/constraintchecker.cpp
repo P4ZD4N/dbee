@@ -8,7 +8,6 @@
 
 auto ConstraintChecker::check_data(
     const std::vector<std::string> &data,
-    const std::vector<std::vector<Constraint>> &constraints,
     const Table& table
 ) -> void {
 
@@ -16,7 +15,7 @@ auto ConstraintChecker::check_data(
 
         const auto& element = data.at(i);
 
-        for (const auto& constraint : constraints.at(i)) {
+        for (const auto& constraint : table.column_constraints.at(i)) {
             switch (constraint) {
                 case Constraint::NOT_NULL: {
                     if (is_null(element))

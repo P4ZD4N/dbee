@@ -4,13 +4,11 @@
 #include <string>
 
 #include "../table/table.h"
-#include "../enums/constraint.h"
 
 class ConstraintChecker {
 public:
     static auto check_data(
         const std::vector<std::string>& data,
-        const std::vector<std::vector<Constraint>>& constraints,
         const Table& table
     ) -> void;
 
