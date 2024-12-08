@@ -137,7 +137,7 @@ auto Parser::process_table_query(const std::vector<std::string> &query_elements)
                 auto column_names = std::vector<std::string>{};
                 auto column_types = std::vector<std::string>{};
                 auto column_constraints = std::vector<std::vector<Constraint>>{};
-                auto column_foreign_keys = std::vector<std::pair<Table, std::string>>{};
+                auto column_foreign_keys = std::vector<std::pair<Table*, std::string>>{};
 
                 for (const auto& detail : column_details) {
                     auto column_name = std::string(detail.begin(), std::ranges::find(detail, '('));
@@ -153,9 +153,9 @@ auto Parser::process_table_query(const std::vector<std::string> &query_elements)
 
                         if (!is_foreign_key_valid(foreign_table_name, foreign_column_name, column_type)) return;
 
-                        column_foreign_keys.push_back(
-                            std::pair{database.value().get_table_by_name(foreign_table_name), foreign_column_name});
-                    }
+                        auto& foreign_table = database.value().get_table_by_name(foreign_table_name);
+                        column_foreign_keys.emplace_back(&foreign_table, foreign_column_name);
+                    } else column_foreign_keys.emplace_back(nullptr, "");
 
                     auto constraints = std::vector<std::string>{};
 
@@ -168,12 +168,8 @@ auto Parser::process_table_query(const std::vector<std::string> &query_elements)
                     if (!column_constraints_string.empty()) constraints.push_back(column_constraints_string);
 
                     for (auto& constraint : constraints) {
-
                         auto open_brace_pos = constraint.find('{');
-                        if (open_brace_pos != std::string::npos) {
-
-                            constraint.erase(open_brace_pos, constraint.back());
-                        }
+                        if (open_brace_pos != std::string::npos) constraint.erase(open_brace_pos, constraint.back());
                     }
 
                     column_names.push_back(column_name);

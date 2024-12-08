@@ -13,7 +13,7 @@ auto Database::create_table(
     const std::vector<std::string>& column_names,
     const std::vector<ColumnType>& column_types,
     const std::vector<std::vector<Constraint>>& column_constraints,
-    const std::vector<std::pair<Table, std::string>>& column_foreign_keys
+    const std::vector<std::pair<Table*, std::string>>& column_foreign_keys
 ) -> void {
 
     if (tables.contains(name)) throw std::runtime_error("Table with name '" + name + "' already exists!");

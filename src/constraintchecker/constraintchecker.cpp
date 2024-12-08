@@ -60,9 +60,17 @@ auto ConstraintChecker::is_primary_key(const std::string& element, const Table& 
     return !is_null(element) && is_unique(element, table, column_number);
 }
 
-auto ConstraintChecker::is_foreign_key(const std::string &element, const Table &table, const int &column_number) -> bool {
+auto ConstraintChecker::is_foreign_key(const std::string& element, const Table& table, const int& column_number) -> bool {
 
-    return true;
+    const auto& foreign_table = table.column_foreign_keys.at(column_number).first;
+    const auto& foreign_column_name = table.column_foreign_keys.at(column_number).second;
+    const auto& foreign_column_index = Table::find_index(foreign_table->column_names, foreign_column_name);
+
+    for (const auto& row: foreign_table->get_data()) {
+        const auto& column_element = row.at(foreign_column_index);
+        if (column_element == element) return true;
+    }
+    return false;
 }
 
 

@@ -14,7 +14,7 @@ public:
     std::vector<std::string> column_names;
     std::vector<ColumnType> column_types;
     std::vector<std::vector<Constraint>> column_constraints;
-    std::vector<std::pair<Table, std::string>> column_foreign_keys;
+    std::vector<std::pair<Table*, std::string>> column_foreign_keys;
     std::vector<std::vector<std::string>> rows;
 
     Table() = default;
@@ -23,7 +23,7 @@ public:
           const std::vector<std::string>& column_names,
           const std::vector<ColumnType>& column_types,
           const std::vector<std::vector<Constraint>>& column_constraints,
-          const std::vector<std::pair<Table, std::string>>& column_foreign_keys)
+          const std::vector<std::pair<Table*, std::string>>& column_foreign_keys)
         : name(name),
           column_names(column_names),
           column_types(column_types),
