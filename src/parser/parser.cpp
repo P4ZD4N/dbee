@@ -241,6 +241,14 @@ auto Parser::is_foreign_key_valid(
         return false;
     }
 
+    const auto column_found_constraints = database.value().tables.at(foreign_table_name).column_constraints.at(column_found_index);
+
+    if (std::ranges::find(column_found_constraints, Constraint::PRIMARY_KEY) == column_found_constraints.end() ||
+        std::ranges::find(column_found_constraints, Constraint::UNIQUE) == column_found_constraints.end()) {
+        fmt::println("Column with 'FOREIGN_KEY' constraint must refer to column with 'UNIQUE' or 'PRIMARY_KEY' constraint!");
+        return false;
+    }
+
     return true;
 }
 
