@@ -5,10 +5,12 @@
 
 auto Table::insert_row(const std::vector<std::string>& data) -> void {
 
-    if (data.size() != column_names.size())
-        throw std::invalid_argument("Row size does not match the number of columns!");
+    if (data.size() != column_names.size()) {
+        fmt::println("Row size does not match the number of columns!");
+        return;
+    }
 
-    ConstraintChecker::check_data(data, *this);
+    if (!ConstraintChecker::check_data(data, *this)) return;
 
     const std::regex integer_regex(R"(^[-+]?[0-9]+$)");
     const std::regex float_regex(R"(^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$)");
@@ -19,15 +21,13 @@ auto Table::insert_row(const std::vector<std::string>& data) -> void {
 
             case ColumnType::INTEGER: {
                 if (!std::regex_match(data.at(i), integer_regex))
-                    throw std::invalid_argument(
-                        "Value '" + data.at(i) + "' in column '" + column_names.at(i) + "' is not a valid INTEGER!");
+                    fmt::println("Value '{}' in column '{}' is not a valid INTEGER!", data.at(i), column_names.at(i));
                 break;
             }
 
             case ColumnType::FLOAT: {
                 if (!std::regex_match(data.at(i), float_regex))
-                    throw std::invalid_argument(
-                        "Value '" + data.at(i) + "' in column '" + column_names.at(i) + "' is not a valid FLOAT!");
+                    fmt::println("Value '{}' in column '{}' is not a valid FLOAT!", data.at(i), column_names.at(i));
                 break;
             }
 
@@ -36,6 +36,8 @@ auto Table::insert_row(const std::vector<std::string>& data) -> void {
     }
 
     rows.push_back(data);
+
+    fmt::println("Successfully inserted data into table: '{}'", name);
 }
 
 auto Table::get_data() const -> std::vector<std::vector<std::string> > {
@@ -46,7 +48,10 @@ auto Table::get_data_from(const std::string& column_name) const -> std::vector<s
 
     const auto column_index = find_index(column_names, column_name);
 
-    if (column_index == -1) throw std::invalid_argument("Column with name '" + column_name + "' not found in table with name: '" + name + "'");
+    if (column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", column_name, name);
+        return {};
+    }
 
     auto data = std::vector<std::string>{};
 
@@ -74,14 +79,16 @@ auto Table::add_column(
 
     const auto column_index = find_index(column_names, column_name);
 
-    if (column_index != -1)
-        throw std::invalid_argument("Column with name '" + column_name + "' already exists in table with name: '" + name + "'");
+    if (column_index != -1) {
+        fmt::println("Column with name '{}' already exists in table with name: '{}'", column_name, name);
+        return;
+    }
 
     column_names.push_back(column_name);
     column_types.push_back(column_type);
     column_constraints.push_back(new_column_constraints);
 
-    for (auto& row : rows) row.push_back("");
+    for (auto& row : rows) row.emplace_back("");
 
     fmt::println("Successfully added column with name: '{}' to table with name name: '{}'", column_name, name);
 }
@@ -90,8 +97,10 @@ auto Table::remove_column(const std::string &column_name) -> void {
 
     const auto column_index = find_index(column_names, column_name);
 
-    if (column_index == -1)
-        throw std::invalid_argument("Column with name '" + column_name + "' not found in table with name: '" + name + "'");
+    if (column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", column_name, name);
+        return;
+    }
 
     column_names.erase(column_names.begin() + column_index);
     column_types.erase(column_types.begin() + column_index);

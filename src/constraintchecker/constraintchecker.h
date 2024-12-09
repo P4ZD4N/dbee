@@ -10,7 +10,7 @@ public:
     static auto check_data(
         const std::vector<std::string>& data,
         const Table& table
-    ) -> void;
+    ) -> bool;
 
 private:
     static auto is_null(const std::string& element) -> bool;

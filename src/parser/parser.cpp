@@ -44,8 +44,10 @@ auto Parser::process_select_query(const std::vector<std::string> &query_elements
     const auto obligatory_from_clause = std::string("FROM");
     const auto from_clause_index = find_index(query_elements, obligatory_from_clause);
 
-    if (from_clause_index == -1)
-        throw std::invalid_argument("Query with SELECT clause should contain FROM clause!");
+    if (from_clause_index == -1) {
+        fmt::println("Query with SELECT clause should contain FROM clause!");
+        return;
+    }
 
     const auto column_names = std::vector(query_elements.begin() + 1, query_elements.begin() + from_clause_index);
     const auto table_names = std::vector(query_elements.begin() + from_clause_index + 1, query_elements.end());
@@ -79,8 +81,10 @@ auto Parser::process_insert_query(const std::vector<std::string> &query_elements
         const auto obligatory_values_clause = std::string("VALUES");
         const auto values_clause_index = find_index(query_elements, obligatory_values_clause);
 
-        if (values_clause_index == -1)
-            throw std::invalid_argument("Query with INSERT clause should contain VALUES clause!");
+        if (values_clause_index == -1) {
+            fmt::println("Query with INSERT clause should contain VALUES clause!");
+            return;
+        }
 
         const auto& table_name = query_elements.at(2);
         auto values = std::vector(query_elements.begin() + values_clause_index + 1, query_elements.end());
@@ -103,8 +107,10 @@ auto Parser::process_alter_query(const std::vector<std::string>& query_elements)
         const auto operation_clause_index = column_clause_index - 1;
         const auto& table_name = query_elements.at(2);
 
-        if (column_clause_index == -1)
-            throw std::invalid_argument("Query with ALTER clause should contain COLUMN clause!");
+        if (column_clause_index == -1) {
+            fmt::println("Query with ALTER clause should contain COLUMN clause!");
+            return;
+        }
 
         if (query_elements.at(operation_clause_index) == "ADD") {
             const auto& new_column_name = query_elements.at(column_clause_index + 1);
@@ -119,7 +125,7 @@ auto Parser::process_alter_query(const std::vector<std::string>& query_elements)
         } else if (query_elements.at(operation_clause_index) == "DROP") {
             const auto& column_to_remove_name = query_elements.at(column_clause_index + 1);
             database.value().get_table_by_name(table_name).remove_column(column_to_remove_name);
-        } else throw std::invalid_argument("Query with ALTER clause should contain operation clause before COLUMN clause!");
+        } else fmt::println("Query with ALTER clause should contain operation clause before COLUMN clause!");
     } else fmt::println("Query with ALTER clause should contain TABLE clause!");
 }
 
@@ -243,7 +249,7 @@ auto Parser::is_foreign_key_valid(
 
     const auto column_found_constraints = database.value().tables.at(foreign_table_name).column_constraints.at(column_found_index);
 
-    if (std::ranges::find(column_found_constraints, Constraint::PRIMARY_KEY) == column_found_constraints.end() ||
+    if (std::ranges::find(column_found_constraints, Constraint::PRIMARY_KEY) == column_found_constraints.end() &&
         std::ranges::find(column_found_constraints, Constraint::UNIQUE) == column_found_constraints.end()) {
         fmt::println("Column with 'FOREIGN_KEY' constraint must refer to column with 'UNIQUE' or 'PRIMARY_KEY' constraint!");
         return false;

@@ -3,7 +3,7 @@
 #include "../enums/constraint.h"
 #include "../table/table.h"
 
-#include <stdexcept>
+
 #include <vector>
 
 std::unordered_map<std::string, Database> Database::databases;
@@ -16,7 +16,10 @@ auto Database::create_table(
     const std::vector<std::pair<Table*, std::string>>& column_foreign_keys
 ) -> void {
 
-    if (tables.contains(name)) throw std::runtime_error("Table with name '" + name + "' already exists!");
+    if (tables.contains(name)) {
+        fmt::println("Table with name '{}' already exists!", name);
+        return;
+    }
 
     const auto new_table = Table(name, column_names, column_types, column_constraints, column_foreign_keys);
     tables.insert({name, new_table});
@@ -26,7 +29,10 @@ auto Database::create_table(
 
 auto Database::drop_table(const std::string& name) -> void {
 
-    if (!tables.contains(name)) throw std::runtime_error("Table with name '" + name + "' does not exist!");
+    if (!tables.contains(name)) {
+        fmt::println("Table with name '{}' does not exist!", name);
+        return;
+    }
 
     tables.erase(name);
 
@@ -36,26 +42,31 @@ auto Database::drop_table(const std::string& name) -> void {
 
 auto Database::insert_data(const std::string& table_name, const std::vector<std::string>& data) -> void {
 
-    if (!tables.contains(table_name)) throw std::runtime_error(
-        "Table with name '" + table_name + "' does not exist in database with name: '" + this->name + "!");
+    if (!tables.contains(table_name)) {
+        fmt::println("Table with name '{}' does not exist in database with name: '{}'!", table_name, this->name);
+        return;
+    }
 
     tables.at(table_name).insert_row(data);
-
-    fmt::println("Successfully inserted data into table: '{}' in database with name: '{}'", table_name, this->name);
 }
 
 auto Database::get_table_by_name(const std::string& table_name) -> Table& {
 
-    if (!tables.contains(table_name)) throw std::runtime_error(
-        "Table with name '" + table_name + "' does not exist in database with name: '" + this->name + "!");
+    if (!tables.contains(table_name)) {
+        fmt::println("Table with name '{}' does not exist in database with name: '{}'!", table_name, this->name);
+        static auto empty_table = Table();
+        return empty_table;
+    }
 
     return tables.at(table_name);
 }
 
 auto Database::create_database(const std::string& database_name) -> void {
 
-    if (databases.contains(database_name)) throw std::runtime_error(
-        "Database with name '" + database_name + "' already exists!");
+    if (databases.contains(database_name)) {
+        fmt::println("Database with name '{}' already exists!", database_name);
+        return;
+    }
 
     auto new_db = Database(database_name);
     databases.insert({database_name, new_db});
@@ -63,16 +74,21 @@ auto Database::create_database(const std::string& database_name) -> void {
 
 auto Database::get_database(const std::string& database_name) -> Database& {
 
-    if (!databases.contains(database_name)) throw std::runtime_error(
-        "Database with name '" + database_name + "' does not exist!");
+    if (!databases.contains(database_name)) {
+        fmt::println("Database with name '{}' does not exist!", database_name);
+        static auto empty_db = Database();
+        return empty_db;
+    }
 
     return databases.at(database_name);
 }
 
 auto Database::drop_database(const std::string &database_name) -> void {
 
-    if (!databases.contains(database_name)) throw std::runtime_error(
-        "Database with name '" + database_name + "' does not exist!");
+    if (!databases.contains(database_name)) {
+        fmt::println("Database with name '{}' does not exist!", database_name);
+        return;
+    }
 
     databases.erase(database_name);
 

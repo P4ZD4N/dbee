@@ -2,15 +2,12 @@
 #include "../enums/constraint.h"
 #include "../table/table.h"
 
-#include <stdexcept>
-
-#include "fmt/xchar.h"
+#include "fmt/ranges.h"
 
 auto ConstraintChecker::check_data(
     const std::vector<std::string> &data,
     const Table& table
-) -> void {
-
+) -> bool {
     for (int i = 0; i < data.size(); i++) {
 
         const auto& element = data.at(i);
@@ -18,27 +15,37 @@ auto ConstraintChecker::check_data(
         for (const auto& constraint : table.column_constraints.at(i)) {
             switch (constraint) {
                 case Constraint::NOT_NULL: {
-                    if (is_null(element))
-                        throw std::runtime_error("Can't insert NULL data to column with NOT_NULL constraint!");
+                    if (is_null(element)) {
+                        fmt::println("Can't insert NULL data to column with NOT_NULL constraint!");
+                        return false;
+                    }
                 } break;
 
                 case Constraint::UNIQUE: {
-                    if (!is_unique(element, table, i))
-                        throw std::runtime_error("Can't insert not unique data to column with UNIQUE constraint!");
+                    if (!is_unique(element, table, i)) {
+                        fmt::println("Can't insert not unique data to column with UNIQUE constraint!");
+                        return false;
+                    }
                 } break;
 
                 case Constraint::PRIMARY_KEY: {
-                    if (!is_primary_key(element, table, i))
-                        throw std::runtime_error("Can't insert not unique or NULL data to column with PRIMARY_KEY constraint!");
+                    if (!is_primary_key(element, table, i)) {
+                        fmt::println("Can't insert not unique or NULL data to column with PRIMARY_KEY constraint!");
+                        return false;
+                    }
                 } break;
 
                 case Constraint::FOREIGN_KEY: {
-                    if (!is_foreign_key(element, table, i))
-                        throw std::runtime_error("Can't insert data that violates FOREIGN KEY constraint!");
+                    if (!is_foreign_key(element, table, i)) {
+                        fmt::println("Can't insert data that violates FOREIGN KEY constraint!");
+                        return false;
+                    }
                 } break;
             }
         }
     }
+
+    return true;
 }
 
 auto ConstraintChecker::is_null(const std::string &element) -> bool {

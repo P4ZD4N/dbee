@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-#include <stdexcept>
+#include "fmt/ranges.h"
 
 enum class ColumnType {
     INTEGER,
@@ -23,7 +23,8 @@ inline auto string_to_column_type(const std::string& str) -> ColumnType {
 
     if (it != column_type_map.end()) return it->second;
 
-    throw std::invalid_argument("Invalid column type: " + str);
+    fmt::println("Invalid column type: {}", str);
+    return {};
 }
 
 inline auto strings_to_column_types(const std::vector<std::string> vec) -> std::vector<ColumnType> {
@@ -38,7 +39,10 @@ inline auto strings_to_column_types(const std::vector<std::string> vec) -> std::
 
     for (const auto& element: vec) {
         auto it = column_type_map.find(element);
-        if (it == column_type_map.end()) throw std::invalid_argument("Invalid column type: " + element);
+        if (it == column_type_map.end()) {
+            fmt::println("Invalid column type: {}", element);
+            return {};
+        }
         newVec.push_back(it->second);
     }
 

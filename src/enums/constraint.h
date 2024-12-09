@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-#include <stdexcept>
+#include <fmt/ranges.h>
 
 enum class Constraint {
     NOT_NULL,
@@ -26,7 +26,10 @@ inline auto strings_to_constraints(std::vector<std::string> vec) -> std::vector<
     for (const auto& element : vec) {
         auto it = constraint_map.find(element);
 
-        if (it == constraint_map.end()) throw std::invalid_argument("Invalid constraint: " + element);
+        if (it == constraint_map.end()) {
+            fmt::println("Invalid constraint: {}", element);
+            return {};
+        }
 
         constraint_vec.push_back(it->second);
     }
