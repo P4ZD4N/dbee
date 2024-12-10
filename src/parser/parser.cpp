@@ -197,8 +197,18 @@ auto Parser::process_table_query(const std::vector<std::string> &query_elements)
                     column_foreign_keys);
             } else fmt::println("Query with TABLE CREATE clauses should contain WITH COLUMNS clauses after table name!");
         } else if (query_elements.at(1) == "DROP") {
-            const auto& table_name = query_elements.at(2);
-            database.value().drop_table(table_name);
+            const auto& table_to_drop_name = query_elements.at(2);
+
+            for (const auto& [table_from_db_name, table_from_db] : database.value().tables) {
+                for (const auto& table_from_foreign_key : table_from_db.column_foreign_keys) {
+                    if (table_from_foreign_key.first != nullptr && table_from_foreign_key.first->name == table_to_drop_name) {
+                        fmt::println("Can't drop table '{}' because it contains column, which is foreign key of different column!", table_to_drop_name);
+                        return;
+                    }
+                }
+            }
+
+            database.value().drop_table(table_to_drop_name);
         } else fmt::println("Query with TABLE clause should contain correct operation clause after TABLE clause!");
 }
 

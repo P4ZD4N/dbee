@@ -105,6 +105,7 @@ auto Table::remove_column(const std::string &column_name) -> void {
     column_names.erase(column_names.begin() + column_index);
     column_types.erase(column_types.begin() + column_index);
     column_constraints.erase(column_constraints.begin() + column_index);
+    column_foreign_keys.erase(column_foreign_keys.begin() + column_index);
 
     for (auto &row : rows) {
         row.erase(row.begin() + column_index);
