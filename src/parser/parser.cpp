@@ -147,6 +147,12 @@ auto Parser::process_table_query(const std::vector<std::string> &query_elements)
 
                 for (const auto& detail : column_details) {
                     auto column_name = std::string(detail.begin(), std::ranges::find(detail, '('));
+
+                    if (std::ranges::find(column_names, column_name) != column_names.end()) {
+                        fmt::println("Can't add two columns with name '{}'!", column_name);
+                        return;
+                    }
+
                     auto column_type = std::string(std::ranges::find(detail, '(') + 1, std::ranges::find(detail, ')'));
                     auto column_constraints_string = std::string(std::ranges::find(detail, '[') + 1, std::ranges::find(detail, ']'));
                     auto column_foreign_keys_string = get_foreign_key_from_curly_braces(detail);
