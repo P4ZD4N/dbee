@@ -251,22 +251,51 @@ auto Parser::process_insert_query(const std::vector<std::string> &query_elements
 
     if (!is_database_selected()) return;
 
-    if (query_elements.at(1) == "INTO") {
+    if (query_elements.at(1) != "INTO") {
+        fmt::println("Query with INSERT clause should contain INTO clause!");
+        return;
+    }
 
-        const auto values_clause_index = find_index(query_elements, "VALUES");
+    const auto values_clause_index = find_index(query_elements, "VALUES");
 
-        if (values_clause_index == -1) {
-            fmt::println("Query with INSERT clause should contain VALUES clause!");
-            return;
+    if (values_clause_index == -1) {
+        fmt::println("Query with INSERT clause should contain VALUES clause!");
+        return;
+    }
+
+    const auto& table_name = query_elements.at(2);
+    auto values = std::vector(query_elements.begin() + values_clause_index + 1, query_elements.end());
+    auto cleaned_values = std::vector<std::string>{};
+
+    auto value_with_more_parts = std::string();
+
+    for (auto& value : values) {
+        if (!value_with_more_parts.empty()) {
+            value_with_more_parts.append(" " + value);
+
+            if (value.back() == '\'') {
+                value_with_more_parts = value_with_more_parts.substr(1, value_with_more_parts.length() - 2);
+                cleaned_values.push_back(value_with_more_parts);
+                value_with_more_parts.clear();
+            }
+
+            continue;
         }
 
-        const auto& table_name = query_elements.at(2);
-        auto values = std::vector(query_elements.begin() + values_clause_index + 1, query_elements.end());
+        if (value.front() == '\'' && value.back() == '\'') {
+            value = value.substr(1, value.length() - 2);
+            cleaned_values.push_back(value);
+        } else if (value.find('\'') != std::string::npos) {
+            value_with_more_parts = value;
+        } else {
+            std::erase(value, ',');
+            cleaned_values.push_back(value);
+        }
+    }
 
-        for (auto& value : values) std::erase(value, ',');
 
-        database.value().insert_data(table_name, values);
-    } else fmt::println("Query with INSERT clause should contain INTO clause!");
+    fmt::println("{}", cleaned_values);
+    database.value().insert_data(table_name, cleaned_values);
 }
 
 
