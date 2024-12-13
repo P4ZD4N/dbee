@@ -24,8 +24,12 @@ private:
         const std::vector<std::string>& query_elements,
         const std::vector<std::string>& column_names
     ) const -> void;
-    auto is_valid_select_inner_join_query(
-        int inner_clause_index,
+    auto process_select_left_join_query(
+        const std::vector<std::string>& query_elements,
+        const std::vector<std::string>& column_names
+    ) const -> void;
+    auto is_valid_select_join_query(
+        int join_type_clause_index,
         int join_clause_index,
         int on_clause_index
     ) const -> bool;
@@ -35,10 +39,19 @@ private:
         const std::vector<std::string>& query_elements
     ) const -> bool;
     auto print_all_columns_for_inner_join(
-    const std::string& left,
-    const std::string& right
+        const std::string& left,
+        const std::string& right
     ) const -> void;
     auto print_specific_columns_for_inner_join(
+        const std::string& left,
+        const std::string& right,
+        const std::vector<std::string>& column_names
+    ) const -> void;
+    auto print_all_columns_for_left_join(
+        const std::string& left,
+        const std::string& right
+    ) const -> void;
+    auto print_specific_columns_for_left_join(
         const std::string& left,
         const std::string& right,
         const std::vector<std::string>& column_names
