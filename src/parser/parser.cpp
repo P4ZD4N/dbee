@@ -44,6 +44,7 @@ auto Parser::process_select_query(const std::vector<std::string> &query_elements
     const auto from_clause_index = find_index(query_elements, "FROM");
     const auto inner_clause_index = find_index(query_elements, "INNER");
     const auto left_clause_index = find_index(query_elements, "LEFT");
+    const auto right_clause_index = find_index(query_elements, "RIGHT");
 
     if (from_clause_index == -1) {
         fmt::println("Query with SELECT clause should contain FROM clause!");
@@ -59,6 +60,11 @@ auto Parser::process_select_query(const std::vector<std::string> &query_elements
 
     if (left_clause_index != -1) {
         process_select_left_join_query(query_elements, column_names);
+        return;
+    }
+
+    if (right_clause_index != -1) {
+        process_select_right_join_query(query_elements, column_names);
         return;
     }
 
@@ -238,8 +244,8 @@ auto Parser::print_specific_columns_for_inner_join(
                             return;
                         }
 
-                        if (c_left_index != -1) for (const auto& element : left_table_data) combined_data.push_back(element);
-                        if (c_right_index != -1) for (const auto& element : right_table_data) combined_data.push_back(element);
+                        if (c_left_index != -1) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, column_name)]);
+                        if (c_right_index != -1) combined_data.push_back(right_table_data[Table::find_index(right_table.column_names, column_name)]);
                     }
                 }
                 data.push_back(combined_data);
@@ -360,8 +366,8 @@ auto Parser::print_specific_columns_for_left_join(
                             return;
                         }
 
-                        if (c_left_index != -1) for (const auto& element : left_table_data) combined_data.push_back(element);
-                        if (c_right_index != -1) for (const auto& element : right_table_data) combined_data.push_back(element);
+                        if (c_left_index != -1) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, column_name)]);
+                        if (c_right_index != -1) combined_data.push_back(right_table_data[Table::find_index(right_table.column_names, column_name)]);
                     }
                 }
                 data.push_back(combined_data);
@@ -376,6 +382,7 @@ auto Parser::print_specific_columns_for_left_join(
                 if (const auto dot_pos = column_name.find('.'); dot_pos != std::string::npos) {
                     const auto [t_name, c_name] = split_string_with_dot(column_name);
                     if (t_name == left_table_name) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, c_name)]);
+                    else combined_data.emplace_back("");
                 } else {
                     const auto c_left_index = Table::find_index(left_table.column_names, column_name);
                     const auto c_right_index = Table::find_index(right_table.column_names, column_name);
@@ -385,10 +392,159 @@ auto Parser::print_specific_columns_for_left_join(
                         return;
                     }
 
-                    if (c_left_index != -1) for (const auto& element : left_table_data) combined_data.push_back(element);
+                    if (c_left_index != -1) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, column_name)]);
+                    else combined_data.emplace_back("");
                 }
             }
-            for (auto i = 0; i < column_names.size() - data.size(); i++) combined_data.emplace_back("");
+            data.push_back(combined_data);
+        }
+    }
+
+    fmt::println("{}", data);
+}
+
+auto Parser::process_select_right_join_query(
+    const std::vector<std::string>& query_elements,
+    const std::vector<std::string>& column_names
+) const -> void {
+    const auto from_clause_index = find_index(query_elements, "FROM");
+    const auto right_clause_index = find_index(query_elements, "RIGHT");
+    const auto join_clause_index = find_index(query_elements, "JOIN");
+    const auto on_clause_index = find_index(query_elements, "ON");
+
+    if (!is_valid_select_join_query(right_clause_index, join_clause_index, on_clause_index)) {
+        fmt::println("Query with SELECT and RIGHT clause should contain JOIN and ON clauses!");
+        return;
+    }
+
+    auto table_names = std::vector(query_elements.begin() + from_clause_index + 1, query_elements.begin() +  right_clause_index);
+    table_names.emplace_back(query_elements.at(join_clause_index + 1));
+
+    const auto& left = query_elements.at(on_clause_index + 1);
+    const auto& right = query_elements.at(on_clause_index + 3);
+
+    if (!validate_tables_and_columns(left, right, query_elements)) return;
+
+    if (column_names.size() == 1 and column_names.at(0) == "*") {
+        print_all_columns_for_right_join(left, right);
+        return;
+    }
+
+    print_specific_columns_for_right_join(left, right, column_names);
+}
+
+
+auto Parser::print_all_columns_for_right_join(
+    const std::string& left,
+    const std::string& right
+) const -> void {
+
+    auto data = std::vector<std::vector<std::string>>{};
+
+    const auto [left_table_name, left_column_name] = split_string_with_dot(left);
+    const auto [right_table_name, right_column_name] = split_string_with_dot(right);
+
+    auto left_table = database.value().tables.find(left_table_name)->second;
+    auto right_table = database.value().tables.find(right_table_name)->second;
+
+    const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
+    const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
+
+    for (auto right_table_data : right_table.get_data()) {
+
+        auto match_found = false;
+
+        for (auto left_table_data : left_table.get_data()) {
+            if (right_table_data[right_column_id] == left_table_data[left_column_id]) {
+                auto combined_data = std::vector<std::string>{};
+                for (const auto& element : left_table_data) combined_data.push_back(element);
+                for (const auto& element : right_table_data) combined_data.push_back(element);
+                data.push_back(combined_data);
+                combined_data.clear();
+                match_found = true;
+            }
+        }
+
+        if (!match_found) {
+            auto combined_data = std::vector<std::string>{};
+            for (auto i = 0; i < left_table.column_names.size(); i++) combined_data.emplace_back("");
+            for (const auto& element : right_table_data) combined_data.push_back(element);
+            data.push_back(combined_data);
+        }
+    }
+
+    fmt::println("{}", data);
+}
+
+auto Parser::print_specific_columns_for_right_join(
+    const std::string &left,
+    const std::string &right,
+    const std::vector<std::string> &column_names
+) const -> void {
+
+    auto data = std::vector<std::vector<std::string>>{};
+
+    const auto [left_table_name, left_column_name] = split_string_with_dot(left);
+    const auto [right_table_name, right_column_name] = split_string_with_dot(right);
+
+    auto left_table = database.value().tables.find(left_table_name)->second;
+    auto right_table = database.value().tables.find(right_table_name)->second;
+
+    const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
+    const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
+
+    for (const auto& right_table_data : right_table.get_data()) {
+
+        auto match_found = false;
+
+        for (const auto& left_table_data : left_table.get_data()) {
+            if (right_table_data[right_column_id] == left_table_data[left_column_id]) {
+                auto combined_data = std::vector<std::string>{};
+                for (auto column_name : column_names) {
+                    std::erase(column_name, ',');
+                    if (const auto dot_pos = column_name.find('.'); dot_pos != std::string::npos) {
+                        const auto [t_name, c_name] = split_string_with_dot(column_name);
+                        if (t_name == left_table_name) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, c_name)]);
+                        else if (t_name == right_table_name) combined_data.push_back(right_table_data[Table::find_index(right_table.column_names, c_name)]);
+                    } else {
+                        const auto c_left_index = Table::find_index(left_table.column_names, column_name);
+                        const auto c_right_index = Table::find_index(right_table.column_names, column_name);
+
+                        if (c_left_index != -1 && c_right_index != -1) {
+                            fmt::println("Column with name '{}' exists in both tables!", column_name);
+                            return;
+                        }
+
+                        if (c_left_index != -1) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, column_name)]);
+                        if (c_right_index != -1) combined_data.push_back(right_table_data[Table::find_index(right_table.column_names, column_name)]);
+                    }
+                }
+                data.push_back(combined_data);
+                match_found = true;
+            }
+        }
+
+        if (!match_found) {
+            auto combined_data = std::vector<std::string>{};
+            for (auto column_name : column_names) {
+                std::erase(column_name, ',');
+                if (const auto dot_pos = column_name.find('.'); dot_pos != std::string::npos) {
+                    const auto [t_name, c_name] = split_string_with_dot(column_name);
+                    if (t_name == right_table_name) combined_data.push_back(right_table_data[Table::find_index(right_table.column_names, c_name)]);
+                    else combined_data.emplace_back("");
+                } else {
+                    const auto c_left_index = Table::find_index(left_table.column_names, column_name);
+                    const auto c_right_index = Table::find_index(right_table.column_names, column_name);
+
+                    if (c_left_index != -1 && c_right_index != -1) {
+                        fmt::println("Column with name '{}' exists in both tables!", column_name);
+                        return;
+                    }
+
+                    if (c_right_index != -1) combined_data.push_back(right_table_data[Table::find_index(right_table.column_names, column_name)]);
+                    else combined_data.emplace_back("");
+                }
+            }
             data.push_back(combined_data);
         }
     }
