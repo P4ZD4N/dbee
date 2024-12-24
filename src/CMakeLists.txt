@@ -32,5 +32,7 @@ add_executable(dbee main.cpp
         parser/queries/alterparser.h
         parser/queries/tableparser.cpp
         parser/queries/tableparser.h
+        parser/queries/updateparser.cpp
+        parser/queries/updateparser.h
 )
 target_link_libraries(dbee fmt)

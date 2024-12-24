@@ -43,5 +43,19 @@ public:
     auto add_column(const std::string& column_name, const ColumnType& column_type, const std::vector<Constraint>& new_column_constraints) -> void;
     auto remove_column(const std::string& column_name) -> void;
     static auto find_index(const std::vector<std::string>& vec, const std::string& value) -> int;
+    auto update_all_rows(const std::string& column_name, const std::string& new_value) -> void;
+    auto update_specific_rows_by_equality(
+        const std::string& column_name,
+        const std::string& new_value,
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    auto update_specific_rows_by_inequality(
+        const std::string& column_name,
+        const std::string& new_value,
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    static auto validate_value(const std::string& value, const ColumnType& column_type, const std::string& column_name) -> bool;
 };
 
