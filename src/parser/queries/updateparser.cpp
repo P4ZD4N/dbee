@@ -35,24 +35,34 @@ auto UpdateParser::parse_update_query(const std::vector<std::string> &query_elem
             return;
         }
 
-        if (query_elements.at(8) != ">") {
-
+        if (query_elements.at(8) == ">") {
+            parser.database.value().get_table_by_name(table_name).update_specific_rows_by_greater_than(
+                column_name, new_value, condition_column_name, condition_column_value);
+            return;
         }
 
-        if (query_elements.at(8) != ">=") {
-
+        if (query_elements.at(8) == ">=") {
+            parser.database.value().get_table_by_name(table_name).update_specific_rows_by_greater_than_or_equal(
+                column_name, new_value, condition_column_name, condition_column_value);
+            return;
         }
 
-        if (query_elements.at(8) != "<") {
-
+        if (query_elements.at(8) == "<") {
+            parser.database.value().get_table_by_name(table_name).update_specific_rows_by_less_than(
+                column_name, new_value, condition_column_name, condition_column_value);
+            return;
         }
 
-        if (query_elements.at(8) != "<=") {
-
+        if (query_elements.at(8) == "<=") {
+            parser.database.value().get_table_by_name(table_name).update_specific_rows_by_less_than_or_equal(
+                column_name, new_value, condition_column_name, condition_column_value);
+            return;
         }
 
-        if (query_elements.at(8) != "LIKE") {
-
+        if (query_elements.at(8) == "LIKE") {
+            parser.database.value().get_table_by_name(table_name).update_specific_rows_by_like(
+                column_name, new_value, condition_column_name, condition_column_value);
+            return;
         }
 
         fmt::println("Query with UPDATE and WHERE clauses should contain comparison operator after column name in condition!");

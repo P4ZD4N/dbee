@@ -127,39 +127,11 @@ auto Table::update_specific_rows_by_equality(
     const auto column_index = find_index(column_names, column_name);
     const auto condition_column_index = find_index(column_names, condition_column_name);
 
-    if (column_index == -1 || condition_column_index == -1) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", column_name, name);
-        return;
-    }
-
-    if (!validate_value(new_value, column_types.at(column_index), column_names.at(column_index))) {
-        return;
-    }
+    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
 
     for (auto& row : rows) {
         if (row[condition_column_index] == condition_column_value) {
-            if (std::ranges::find(column_constraints.at(column_index), Constraint::PRIMARY_KEY) != column_constraints.at(column_index).end()) {
-                const auto duplicate_found = std::ranges::any_of(rows, [&](const auto& other_row) {
-                    return other_row[column_index] == new_value;
-                });
-
-                if (duplicate_found) {
-                    fmt::println("Cannot update column '{}'! Value '{}' violates PRIMARY_KEY constraint!", column_name, new_value);
-                    return;
-                }
-            }
-
-            if (std::ranges::find(column_constraints.at(column_index), Constraint::UNIQUE) != column_constraints.at(column_index).end()) {
-                const auto duplicate_found = std::ranges::any_of(rows, [&](const auto& other_row) {
-                    return &other_row != &row && other_row[column_index] == new_value;
-                });
-
-                if (duplicate_found) {
-                    fmt::println("Cannot update column '{}'! Value '{}' violates UNIQUE constraint!", column_name, new_value);
-                    return;
-                }
-            }
-
+            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
             row[column_index] = new_value;
         }
     }
@@ -176,44 +148,206 @@ auto Table::update_specific_rows_by_inequality(
     const auto column_index = find_index(column_names, column_name);
     const auto condition_column_index = find_index(column_names, condition_column_name);
 
-    if (column_index == -1 || condition_column_index == -1) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", column_name, name);
-        return;
-    }
-
-    if (!validate_value(new_value, column_types.at(column_index), column_names.at(column_index))) {
-        return;
-    }
+    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
 
     for (auto& row : rows) {
         if (row[condition_column_index] != condition_column_value) {
-            if (std::ranges::find(column_constraints.at(column_index), Constraint::PRIMARY_KEY) != column_constraints.at(column_index).end()) {
-                const auto duplicate_found = std::ranges::any_of(rows, [&](const auto& other_row) {
-                    return other_row[column_index] == new_value;
-                });
-
-                if (duplicate_found) {
-                    fmt::println("Cannot update column '{}'! Value '{}' violates PRIMARY_KEY constraint!", column_name, new_value);
-                    return;
-                }
-            }
-
-            if (std::ranges::find(column_constraints.at(column_index), Constraint::UNIQUE) != column_constraints.at(column_index).end()) {
-                const auto duplicate_found = std::ranges::any_of(rows, [&](const auto& other_row) {
-                    return &other_row != &row && other_row[column_index] == new_value;
-                });
-
-                if (duplicate_found) {
-                    fmt::println("Cannot update column '{}'! Value '{}' violates UNIQUE constraint!", column_name, new_value);
-                    return;
-                }
-            }
-
+            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
             row[column_index] = new_value;
         }
     }
 
     fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
+}
+
+auto Table::update_specific_rows_by_greater_than(
+    const std::string& column_name,
+    const std::string& new_value,
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> void {
+
+    const auto column_index = find_index(column_names, column_name);
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
+
+    for (auto& row : rows) {
+        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) > 0) {
+            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
+            row[column_index] = new_value;
+        }
+    }
+}
+
+auto Table::update_specific_rows_by_greater_than_or_equal(
+    const std::string& column_name,
+    const std::string& new_value,
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> void {
+
+    const auto column_index = find_index(column_names, column_name);
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
+
+    for (auto& row : rows) {
+        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) >= 0) {
+            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
+            row[column_index] = new_value;
+        }
+    }
+}
+
+
+auto Table::update_specific_rows_by_less_than(
+    const std::string& column_name,
+    const std::string& new_value,
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> void {
+
+    const auto column_index = find_index(column_names, column_name);
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
+
+    for (auto& row : rows) {
+
+        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) < 0) {
+            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
+            row[column_index] = new_value;
+        }
+    }
+}
+
+auto Table::update_specific_rows_by_less_than_or_equal(
+    const std::string& column_name,
+    const std::string& new_value,
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> void {
+
+    const auto column_index = find_index(column_names, column_name);
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
+
+    for (auto& row : rows) {
+        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) <= 0) {
+            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
+            row[column_index] = new_value;
+        }
+    }
+}
+
+auto Table::update_specific_rows_by_like(
+    const std::string& column_name,
+    const std::string& new_value,
+    const std::string& condition_column_name,
+    const std::string& pattern
+) -> void {
+
+    const auto column_index = find_index(column_names, column_name);
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
+
+    for (auto& row : rows) {
+        if (matches_pattern(row[condition_column_index], pattern)) {
+            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
+            row[column_index] = new_value;
+        }
+    }
+}
+
+auto Table::compare_values(
+    const std::string& value1,
+    const std::string& value2,
+    const ColumnType& type) -> int {
+
+    if (type == ColumnType::INTEGER || type == ColumnType::FLOAT) {
+
+        const double num1 = std::stod(value1);
+        const double num2 = std::stod(value2);
+
+        if (num1 > num2) return 1;
+        if (num1 < num2) return -1;
+
+        return 0;
+    }
+
+    if (type == ColumnType::TEXT) {
+
+        if (value1 > value2) return 1;
+        if (value1 < value2) return -1;
+
+        return 0;
+    }
+
+    return 0;
+}
+
+auto Table::matches_pattern(const std::string& value, const std::string& pattern) -> bool {
+    auto regex_pattern = std::regex_replace(pattern, std::regex(R"(\%)"), ".*");
+    regex_pattern = std::regex_replace(regex_pattern, std::regex(R"(\_)"), ".");
+    const auto regex = std::regex(regex_pattern);
+
+    return std::regex_match(value, regex);
+}
+
+auto Table::validate_column_index_and_value(
+    const std::string& column_name,
+    const std::string& condition_column_name,
+    const std::string& new_value
+) const -> bool {
+
+    const auto column_index = find_index(column_names, column_name);
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (column_index == -1 || condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", column_name, name);
+        return false;
+    }
+
+    if (!validate_value(new_value, column_types.at(column_index), column_names.at(column_index))) {
+        return false;
+    }
+
+    return true;
+}
+
+auto Table::validate_constraints(
+    const std::string& column_name,
+    int column_index,
+    const std::vector<std::string>& row,
+    const std::string& new_value
+) -> bool {
+
+    if (std::ranges::find(column_constraints.at(column_index), Constraint::PRIMARY_KEY) != column_constraints.at(column_index).end()) {
+        const auto duplicate_found = std::ranges::any_of(rows, [&](const auto& other_row) {
+            return other_row[column_index] == new_value;
+        });
+
+        if (duplicate_found) {
+            fmt::println("Cannot update column '{}'! Value '{}' violates PRIMARY_KEY constraint!", column_name, new_value);
+            return false;
+        }
+    }
+
+    if (std::ranges::find(column_constraints.at(column_index), Constraint::UNIQUE) != column_constraints.at(column_index).end()) {
+        const auto duplicate_found = std::ranges::any_of(rows, [&](const auto& other_row) {
+            return &other_row != &row && other_row[column_index] == new_value;
+        });
+
+        if (duplicate_found) {
+            fmt::println("Cannot update column '{}'! Value '{}' violates UNIQUE constraint!", column_name, new_value);
+            return false;
+        }
+    }
+
+    return true;
 }
 
 

@@ -56,6 +56,56 @@ public:
         const std::string& condition_column_name,
         const std::string& condition_column_value
     ) -> void;
+    auto update_specific_rows_by_greater_than(
+        const std::string& column_name,
+        const std::string& new_value,
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    auto update_specific_rows_by_greater_than_or_equal(
+        const std::string& column_name,
+        const std::string& new_value,
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    auto update_specific_rows_by_less_than(
+        const std::string& column_name,
+        const std::string& new_value,
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    auto update_specific_rows_by_less_than_or_equal(
+        const std::string& column_name,
+        const std::string& new_value,
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    auto update_specific_rows_by_like(
+        const std::string& column_name,
+        const std::string& new_value,
+        const std::string& condition_column_name,
+        const std::string& pattern
+    ) -> void;
+    static auto compare_values(
+        const std::string& value1,
+        const std::string& value2,
+        const ColumnType& type
+    ) -> int;
+    static auto matches_pattern(
+        const std::string& value,
+        const std::string& pattern
+    ) -> bool;
+    [[nodiscard]] auto validate_column_index_and_value(
+        const std::string& column_name,
+        const std::string& condition_column_name,
+        const std::string& new_value
+    ) const -> bool;
+    auto validate_constraints(
+        const std::string& column_name,
+        int column_index,
+        const std::vector<std::string>& row,
+        const std::string& new_value
+    ) -> bool;
     static auto validate_value(const std::string& value, const ColumnType& column_type, const std::string& column_name) -> bool;
 };
 
