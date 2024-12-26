@@ -20,6 +20,8 @@ int main() {
     parser.parse_query("UPDATE users SET id = 4 WHERE name LIKE M%");
     parser.parse_query("SELECT * FROM users");
     parser.parse_query("SELECT * FROM pets");
+    parser.parse_query("DELETE FROM users WHERE name LIKE Mat%");
+    parser.parse_query("SELECT * FROM users");
 
     //users.id, users.name, pets.name, height, weight
     auto query = std::string();

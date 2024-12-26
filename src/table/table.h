@@ -86,6 +86,35 @@ public:
         const std::string& condition_column_name,
         const std::string& pattern
     ) -> void;
+    auto delete_all_rows() -> void;
+    auto delete_specific_rows_by_equality(
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    auto delete_specific_rows_by_inequality(
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    auto delete_specific_rows_by_greater_than(
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    auto delete_specific_rows_by_greater_than_or_equal(
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    auto delete_specific_rows_by_less_than(
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    auto delete_specific_rows_by_less_than_or_equal(
+        const std::string& condition_column_name,
+        const std::string& condition_column_value
+    ) -> void;
+    auto delete_specific_rows_by_like(
+        const std::string& condition_column_name,
+        const std::string& pattern
+    ) -> void;
     static auto compare_values(
         const std::string& value1,
         const std::string& value2,

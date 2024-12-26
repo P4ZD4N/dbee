@@ -178,6 +178,8 @@ auto Table::update_specific_rows_by_greater_than(
             row[column_index] = new_value;
         }
     }
+
+    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
 }
 
 auto Table::update_specific_rows_by_greater_than_or_equal(
@@ -198,6 +200,8 @@ auto Table::update_specific_rows_by_greater_than_or_equal(
             row[column_index] = new_value;
         }
     }
+
+    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
 }
 
 
@@ -220,6 +224,8 @@ auto Table::update_specific_rows_by_less_than(
             row[column_index] = new_value;
         }
     }
+
+    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
 }
 
 auto Table::update_specific_rows_by_less_than_or_equal(
@@ -240,6 +246,8 @@ auto Table::update_specific_rows_by_less_than_or_equal(
             row[column_index] = new_value;
         }
     }
+
+    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
 }
 
 auto Table::update_specific_rows_by_like(
@@ -260,6 +268,152 @@ auto Table::update_specific_rows_by_like(
             row[column_index] = new_value;
         }
     }
+
+    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
+}
+
+auto Table::delete_all_rows() -> void {
+
+    rows.clear();
+
+    fmt::println("Successfully deleted all rows from table '{}'", name);
+}
+
+auto Table::delete_specific_rows_by_equality(
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> void {
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return;
+    }
+
+    for (auto it = rows.begin(); it != rows.end(); ) {
+        if ((*it)[condition_column_index] == condition_column_value) {
+            it = rows.erase(it);
+        } else ++it;
+    }
+
+    fmt::println("Successfully deleted rows where column '{}' equals '{}'", condition_column_name, condition_column_value);
+}
+
+auto Table::delete_specific_rows_by_inequality(
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> void {
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return;
+    }
+
+    for (auto it = rows.begin(); it != rows.end(); ) {
+        if ((*it)[condition_column_index] != condition_column_value) {
+            it = rows.erase(it);
+        } else ++it;
+    }
+
+    fmt::println("Successfully deleted rows where column '{}' not equals '{}'", condition_column_name, condition_column_value);
+}
+
+auto Table::delete_specific_rows_by_greater_than(
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> void {
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return;
+    }
+
+    for (auto it = rows.begin(); it != rows.end(); ) {
+        if (compare_values((*it)[condition_column_index], condition_column_value, column_types.at(condition_column_index)) > 0) {
+            it = rows.erase(it);
+        } else ++it;
+    }
+
+    fmt::println("Successfully deleted rows where column '{}' greater than '{}'", condition_column_name, condition_column_value);
+}
+
+auto Table::delete_specific_rows_by_greater_than_or_equal(
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> void {
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return;
+    }
+
+    for (auto it = rows.begin(); it != rows.end(); ) {
+        if (compare_values((*it)[condition_column_index], condition_column_value, column_types.at(condition_column_index)) >= 0) {
+            it = rows.erase(it);
+        } else ++it;
+    }
+
+    fmt::println("Successfully deleted rows where column '{}' greater than or equals '{}'", condition_column_name, condition_column_value);
+}
+
+auto Table::delete_specific_rows_by_less_than(const std::string &condition_column_name, const std::string &condition_column_value) -> void {
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return;
+    }
+
+    for (auto it = rows.begin(); it != rows.end(); ) {
+        if (compare_values((*it)[condition_column_index], condition_column_value, column_types.at(condition_column_index)) < 0) {
+            it = rows.erase(it);
+        } else ++it;
+    }
+
+    fmt::println("Successfully deleted rows where column '{}' less than '{}'", condition_column_name, condition_column_value);
+}
+
+auto Table::delete_specific_rows_by_less_than_or_equal(
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> void {
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return;
+    }
+
+    for (auto it = rows.begin(); it != rows.end(); ) {
+        if (compare_values((*it)[condition_column_index], condition_column_value, column_types.at(condition_column_index)) <= 0) {
+            it = rows.erase(it);
+        } else ++it;
+    }
+
+    fmt::println("Successfully deleted rows where column '{}' less than or equals '{}'", condition_column_name, condition_column_value);
+}
+
+auto Table::delete_specific_rows_by_like(
+    const std::string& condition_column_name,
+    const std::string& pattern
+) -> void {
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return;
+    }
+
+    for (auto it = rows.begin(); it != rows.end(); ) {
+        if (matches_pattern((*it)[condition_column_index], pattern)) {
+            it = rows.erase(it);
+        } else ++it;
+    }
+
+    fmt::println("Successfully deleted rows where column '{}' matches '{}' pattern", condition_column_name, pattern);
 }
 
 auto Table::compare_values(
