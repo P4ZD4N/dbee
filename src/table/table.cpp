@@ -114,7 +114,7 @@ auto Table::update_all_rows(const std::string& column_name, const std::string& n
 
     for (auto& row : rows) row[column_index] = new_value;
 
-    fmt::println("Successfully updated column with name: '{}' (swapped all values with '{}')", column_name, new_value);
+    fmt::println("Successfully updated all rows in table '{}'", name);
 }
 
 auto Table::update_specific_rows_by_equality(
@@ -136,7 +136,7 @@ auto Table::update_specific_rows_by_equality(
         }
     }
 
-    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
+    fmt::println("Successfully deleted rows where column '{}' equals '{}'", condition_column_name, condition_column_value);
 }
 
 auto Table::update_specific_rows_by_inequality(
@@ -157,7 +157,7 @@ auto Table::update_specific_rows_by_inequality(
         }
     }
 
-    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
+    fmt::println("Successfully deleted rows where column '{}' not equals '{}'", condition_column_name, condition_column_value);
 }
 
 auto Table::update_specific_rows_by_greater_than(
@@ -179,7 +179,7 @@ auto Table::update_specific_rows_by_greater_than(
         }
     }
 
-    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
+    fmt::println("Successfully deleted rows where column '{}' greater than '{}'", condition_column_name, condition_column_value);
 }
 
 auto Table::update_specific_rows_by_greater_than_or_equal(
@@ -201,7 +201,7 @@ auto Table::update_specific_rows_by_greater_than_or_equal(
         }
     }
 
-    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
+    fmt::println("Successfully updated rows where column '{}' greater than or equals '{}'", condition_column_name, condition_column_value);
 }
 
 
@@ -225,7 +225,7 @@ auto Table::update_specific_rows_by_less_than(
         }
     }
 
-    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
+    fmt::println("Successfully updated rows where column '{}' less than '{}'", condition_column_name, condition_column_value);
 }
 
 auto Table::update_specific_rows_by_less_than_or_equal(
@@ -247,7 +247,7 @@ auto Table::update_specific_rows_by_less_than_or_equal(
         }
     }
 
-    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
+    fmt::println("Successfully updated rows where column '{}' less than or equals '{}'", condition_column_name, condition_column_value);
 }
 
 auto Table::update_specific_rows_by_like(
@@ -269,7 +269,7 @@ auto Table::update_specific_rows_by_like(
         }
     }
 
-    fmt::println("Successfully updated column with name: '{}' (swapped matching values with '{}')", column_name, new_value);
+    fmt::println("Successfully updated rows where column '{}' matches '{}' pattern", condition_column_name, pattern);
 }
 
 auto Table::delete_all_rows() -> void {
