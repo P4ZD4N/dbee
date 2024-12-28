@@ -13,6 +13,7 @@ auto SelectParser::parse_select_query(const std::vector<std::string>& query_elem
     const auto left_clause_index = find_index(query_elements, "LEFT");
     const auto right_clause_index = find_index(query_elements, "RIGHT");
     const auto full_clause_index = find_index(query_elements, "FULL");
+    const auto where_clause_index = find_index(query_elements, "WHERE");
 
     if (from_clause_index == -1) {
         fmt::println("Query with SELECT clause should contain FROM clause!");
@@ -41,13 +42,112 @@ auto SelectParser::parse_select_query(const std::vector<std::string>& query_elem
         return;
     }
 
-    auto table_names = std::vector(query_elements.begin() + from_clause_index + 1, query_elements.end());
+    auto table_names = std::vector(query_elements.begin() + from_clause_index + 1,
+        where_clause_index == -1 ? query_elements.end() : query_elements.begin() + where_clause_index);
 
     if (column_names.size() == 1 and column_names.at(0) == "*") {
-        for (const auto& table_name : table_names) {
-            auto table = database.value().tables.find(table_name)->second;
-            fmt::println("{}", table.get_data());
+        auto flattened_results = std::vector<std::vector<std::string>>{};
+
+        if (where_clause_index == -1) {
+            for (auto& table_name : table_names) {
+                std::erase(table_name, ',');
+                auto table = database.value().tables.find(table_name)->second;
+                auto data = table.get_all_data();
+                flattened_results.insert(flattened_results.end(), data.begin(), data.end());
+            }
+            fmt::println("{}", flattened_results);
+
+            return;
         }
+
+        const auto& condition_column_name = query_elements.at(where_clause_index + 1);
+        const auto& condition_column_value = query_elements.at(where_clause_index + 3);
+
+        if (query_elements.at(where_clause_index + 2) == "=") {
+
+            for (auto& table_name : table_names) {
+                std::erase(table_name, ',');
+                auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_equality(
+                        database.value().tables.find(table_name)->second.get_all_data(), condition_column_name, condition_column_value);
+                flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+            }
+            fmt::println("{}", flattened_results);
+
+            return;
+        }
+
+        if (query_elements.at(where_clause_index + 2) == "<>" || query_elements.at(where_clause_index + 2) == "!=") {
+            for (auto& table_name : table_names) {
+                std::erase(table_name, ',');
+                auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_inequality(
+                        database.value().tables.find(table_name)->second.get_all_data(), condition_column_name, condition_column_value);
+                flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+            }
+            fmt::println("{}", flattened_results);
+
+            return;
+        }
+
+        if (query_elements.at(where_clause_index + 2) == ">") {
+            for (auto& table_name : table_names) {
+                std::erase(table_name, ',');
+                auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than(
+                        database.value().tables.find(table_name)->second.get_all_data(), condition_column_name, condition_column_value);
+                flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+            }
+            fmt::println("{}", flattened_results);
+
+            return;
+        }
+
+        if (query_elements.at(where_clause_index + 2) == ">=") {
+            for (auto& table_name : table_names) {
+                std::erase(table_name, ',');
+                auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than_or_equal(
+                        database.value().tables.find(table_name)->second.get_all_data(), condition_column_name, condition_column_value);
+                flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+            }
+            fmt::println("{}", flattened_results);
+
+            return;
+        }
+
+        if (query_elements.at(where_clause_index + 2) == "<") {
+            for (auto& table_name : table_names) {
+                std::erase(table_name, ',');
+                auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than(
+                        database.value().tables.find(table_name)->second.get_all_data(), condition_column_name, condition_column_value);
+                flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+            }
+            fmt::println("{}", flattened_results);
+
+            return;
+        }
+
+        if (query_elements.at(where_clause_index + 2) == "<=") {
+            for (auto& table_name : table_names) {
+                std::erase(table_name, ',');
+                auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than_or_equal(
+                        database.value().tables.find(table_name)->second.get_all_data(), condition_column_name, condition_column_value);
+                flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+            }
+            fmt::println("{}", flattened_results);
+
+            return;
+        }
+
+        if (query_elements.at(where_clause_index + 2) == "LIKE") {
+            for (auto& table_name : table_names) {
+                std::erase(table_name, ',');
+                auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_like(
+                        database.value().tables.find(table_name)->second.get_all_data(), condition_column_name, condition_column_value);
+                flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+            }
+            fmt::println("{}", flattened_results);
+
+            return;
+        }
+
         return;
     }
 
@@ -58,7 +158,7 @@ auto SelectParser::parse_select_query(const std::vector<std::string>& query_elem
             std::erase(table_name, ',');
 
             auto table = database.value().tables.find(table_name)->second;
-            fmt::println("{}", table.get_data_from(column_name));
+            fmt::println("{}", table.get_all_data_from(column_name));
         }
     }
 }
@@ -106,11 +206,11 @@ auto SelectParser::print_all_columns_for_inner_join(const std::string &left, con
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
 
-    for (auto left_table_data : left_table.get_data()) {
+    for (auto left_table_data : left_table.get_all_data()) {
 
         auto combined_data = std::vector<std::string>{};
 
-        for (auto right_table_data : right_table.get_data()) {
+        for (auto right_table_data : right_table.get_all_data()) {
 
             if (left_table_data[left_column_id] == right_table_data[right_column_id]) {
                 for (const auto& element : left_table_data) combined_data.push_back(element);
@@ -140,8 +240,8 @@ auto data = std::vector<std::vector<std::string>>{};
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
 
-    for (const auto& left_table_data : left_table.get_data()) {
-        for (const auto& right_table_data : right_table.get_data()) {
+    for (const auto& left_table_data : left_table.get_all_data()) {
+        for (const auto& right_table_data : right_table.get_all_data()) {
             if (left_table_data[left_column_id] == right_table_data[right_column_id]) {
                 auto combined_data = std::vector<std::string>{};
                 for (auto column_name : column_names) {
@@ -213,11 +313,11 @@ auto SelectParser::print_all_columns_for_left_join(const std::string &left, cons
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
 
-    for (auto left_table_data : left_table.get_data()) {
+    for (auto left_table_data : left_table.get_all_data()) {
 
         auto match_found = false;
 
-        for (auto right_table_data : right_table.get_data()) {
+        for (auto right_table_data : right_table.get_all_data()) {
             if (left_table_data[left_column_id] == right_table_data[right_column_id]) {
                 auto combined_data = std::vector<std::string>{};
                 for (const auto& element : left_table_data) combined_data.push_back(element);
@@ -252,11 +352,11 @@ auto SelectParser::print_specific_columns_for_left_join(const std::string &left,
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
 
-    for (const auto& left_table_data : left_table.get_data()) {
+    for (const auto& left_table_data : left_table.get_all_data()) {
 
         auto match_found = false;
 
-        for (const auto& right_table_data : right_table.get_data()) {
+        for (const auto& right_table_data : right_table.get_all_data()) {
             if (left_table_data[left_column_id] == right_table_data[right_column_id]) {
                 auto combined_data = std::vector<std::string>{};
                 for (auto column_name : column_names) {
@@ -354,11 +454,11 @@ auto SelectParser::print_all_columns_for_right_join(const std::string &left, con
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
 
-    for (auto right_table_data : right_table.get_data()) {
+    for (auto right_table_data : right_table.get_all_data()) {
 
         auto match_found = false;
 
-        for (auto left_table_data : left_table.get_data()) {
+        for (auto left_table_data : left_table.get_all_data()) {
             if (right_table_data[right_column_id] == left_table_data[left_column_id]) {
                 auto combined_data = std::vector<std::string>{};
                 for (const auto& element : left_table_data) combined_data.push_back(element);
@@ -397,11 +497,11 @@ auto SelectParser::print_specific_columns_for_right_join(
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
 
-    for (const auto& right_table_data : right_table.get_data()) {
+    for (const auto& right_table_data : right_table.get_all_data()) {
 
         auto match_found = false;
 
-        for (const auto& left_table_data : left_table.get_data()) {
+        for (const auto& left_table_data : left_table.get_all_data()) {
             if (right_table_data[right_column_id] == left_table_data[left_column_id]) {
                 auto combined_data = std::vector<std::string>{};
                 for (auto column_name : column_names) {
@@ -504,11 +604,11 @@ auto SelectParser::print_all_columns_for_full_join(
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
 
-    for (auto left_table_data : left_table.get_data()) {
+    for (auto left_table_data : left_table.get_all_data()) {
 
         auto match_found = false;
 
-        for (auto right_table_data : right_table.get_data()) {
+        for (auto right_table_data : right_table.get_all_data()) {
             if (left_table_data[left_column_id] == right_table_data[right_column_id]) {
                 auto combined_data = std::vector<std::string>{};
                 for (const auto& element : left_table_data) combined_data.push_back(element);
@@ -526,11 +626,11 @@ auto SelectParser::print_all_columns_for_full_join(
         }
     }
 
-    for (auto right_table_data : right_table.get_data()) {
+    for (auto right_table_data : right_table.get_all_data()) {
 
         auto match_found = false;
 
-        for (auto& left_table_data : left_table.get_data()) {
+        for (auto& left_table_data : left_table.get_all_data()) {
             if (right_table_data[right_column_id] == left_table_data[left_column_id]) {
                 match_found = true;
                 break;
@@ -566,11 +666,11 @@ auto SelectParser::print_specific_columns_for_full_join(
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
 
-    for (const auto& left_table_data : left_table.get_data()) {
+    for (const auto& left_table_data : left_table.get_all_data()) {
 
         auto match_found = false;
 
-        for (const auto& right_table_data : right_table.get_data()) {
+        for (const auto& right_table_data : right_table.get_all_data()) {
             if (left_table_data[left_column_id] == right_table_data[right_column_id]) {
                 auto combined_data = std::vector<std::string>{};
                 for (auto column_name : column_names) {
@@ -622,11 +722,11 @@ auto SelectParser::print_specific_columns_for_full_join(
         }
     }
 
-    for (const auto& right_table_data : right_table.get_data()) {
+    for (const auto& right_table_data : right_table.get_all_data()) {
 
         auto match_found = false;
 
-        for (const auto& left_table_data : left_table.get_data()) {
+        for (const auto& left_table_data : left_table.get_all_data()) {
             if (right_table_data[right_column_id] == left_table_data[left_column_id]) {
                 auto combined_data = std::vector<std::string>{};
                 for (auto column_name : column_names) {

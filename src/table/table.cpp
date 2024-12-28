@@ -21,11 +21,11 @@ auto Table::insert_row(const std::vector<std::string>& data) -> void {
     fmt::println("Successfully inserted data into table: '{}'", name);
 }
 
-auto Table::get_data() const -> std::vector<std::vector<std::string> > {
+auto Table::get_all_data() const -> std::vector<std::vector<std::string> > {
     return rows;
 }
 
-auto Table::get_data_from(const std::string& column_name) const -> std::vector<std::string> {
+auto Table::get_all_data_from(const std::string& column_name) const -> std::vector<std::string> {
 
     const auto column_index = find_index(column_names, column_name);
 
@@ -41,6 +41,161 @@ auto Table::get_data_from(const std::string& column_name) const -> std::vector<s
     }
 
     return data;
+}
+
+auto Table::get_data_filtered_by_equality(
+    const std::vector<std::vector<std::string>>& data,
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> std::vector<std::vector<std::string>> {
+
+    auto filtered_data = std::vector<std::vector<std::string>>{};
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return data;
+    }
+
+    for (auto& row : rows) {
+        if (row[condition_column_index] == condition_column_value) {
+            filtered_data.push_back(row);
+        }
+    }
+
+    return filtered_data;
+}
+
+auto Table::get_data_filtered_by_inequality(
+    const std::vector<std::vector<std::string>>& data,
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> std::vector<std::vector<std::string>> {
+    auto filtered_data = std::vector<std::vector<std::string>>{};
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return data;
+    }
+
+    for (auto& row : rows) {
+        if (row[condition_column_index] != condition_column_value) {
+            filtered_data.push_back(row);
+        }
+    }
+
+    return filtered_data;
+}
+
+auto Table::get_data_filtered_by_greater_than(
+    const std::vector<std::vector<std::string>>& data,
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> std::vector<std::vector<std::string> > {
+    auto filtered_data = std::vector<std::vector<std::string>>{};
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return data;
+    }
+
+    for (auto& row : rows) {
+        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) > 0) {
+            filtered_data.push_back(row);
+        }
+    }
+
+    return filtered_data;
+}
+
+auto Table::get_data_filtered_by_greater_than_or_equal(
+    const std::vector<std::vector<std::string>>& data,
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> std::vector<std::vector<std::string>> {
+    auto filtered_data = std::vector<std::vector<std::string>>{};
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return data;
+    }
+
+    for (auto& row : rows) {
+        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) >= 0) {
+            filtered_data.push_back(row);
+        }
+    }
+
+    return filtered_data;
+}
+
+auto Table::get_data_filtered_by_less_than(
+    const std::vector<std::vector<std::string>>& data,
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> std::vector<std::vector<std::string>> {
+    auto filtered_data = std::vector<std::vector<std::string>>{};
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return data;
+    }
+
+    for (auto& row : rows) {
+        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) < 0) {
+            filtered_data.push_back(row);
+        }
+    }
+
+    return filtered_data;
+}
+
+auto Table::get_data_filtered_by_less_than_or_equal(
+    const std::vector<std::vector<std::string>>& data,
+    const std::string& condition_column_name,
+    const std::string& condition_column_value
+) -> std::vector<std::vector<std::string>> {
+    auto filtered_data = std::vector<std::vector<std::string>>{};
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return data;
+    }
+
+    for (auto& row : rows) {
+        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) <= 0) {
+            filtered_data.push_back(row);
+        }
+    }
+
+    return filtered_data;
+}
+
+auto Table::get_data_filtered_by_like(
+    const std::vector<std::vector<std::string>>& data,
+    const std::string& condition_column_name,
+    const std::string& pattern
+) -> std::vector<std::vector<std::string>> {
+    auto filtered_data = std::vector<std::vector<std::string>>{};
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return data;
+    }
+
+    for (auto& row : rows) {
+        if (matches_pattern(row[condition_column_index], pattern)) {
+            filtered_data.push_back(row);
+        }
+    }
+
+    return filtered_data;
 }
 
 auto Table::find_index(const std::vector<std::string> &vec, const std::string &value) -> int {
