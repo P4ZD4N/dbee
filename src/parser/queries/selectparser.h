@@ -75,6 +75,11 @@ private:
         const std::vector<std::string>& column_names
     ) const -> void;
 
+    auto print_appropriate_columns_for_where(
+        const std::vector<std::string>& query_elements,
+        std::vector<std::vector<std::string>>& flattened_results
+    ) const -> void;
+
     static auto find_index(const std::vector<std::string>& vec, const std::string& value) -> int;
 
     static auto is_valid_select_join_query(
