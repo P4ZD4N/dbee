@@ -151,15 +151,110 @@ auto SelectParser::parse_select_query(const std::vector<std::string>& query_elem
         return;
     }
 
-    for (auto column_name : column_names) {
-        std::erase(column_name, ',');
+    auto flattened_results = std::vector<std::vector<std::string>>{};
 
+    if (where_clause_index == -1) {
         for (auto table_name : table_names) {
             std::erase(table_name, ',');
-
-            auto table = database.value().tables.find(table_name)->second;
-            fmt::println("{}", table.get_all_data_from(column_name));
+            auto data_from_table = database.value().tables.find(table_name)->second.get_all_data_from(column_names);
+            flattened_results.insert(flattened_results.end(), data_from_table.begin(), data_from_table.end());
         }
+
+        fmt::println("{}", flattened_results);
+
+        return;
+    }
+
+    const auto& condition_column_name = query_elements.at(where_clause_index + 1);
+    const auto& condition_column_value = query_elements.at(where_clause_index + 3);
+
+    if (query_elements.at(where_clause_index + 2) == "=") {
+        for (auto& table_name : table_names) {
+            std::erase(table_name, ',');
+            auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_equality(
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), condition_column_name, condition_column_value);
+            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+        }
+
+        fmt::println("{}", flattened_results);
+
+        return;
+    }
+
+    if (query_elements.at(where_clause_index + 2) == "<>" || query_elements.at(where_clause_index + 2) == "!=") {
+        for (auto& table_name : table_names) {
+            std::erase(table_name, ',');
+            auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_inequality(
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), condition_column_name, condition_column_value);
+            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+        }
+
+        fmt::println("{}", flattened_results);
+
+        return;
+    }
+
+    if (query_elements.at(where_clause_index + 2) == ">") {
+        for (auto& table_name : table_names) {
+            std::erase(table_name, ',');
+            auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than(
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), condition_column_name, condition_column_value);
+            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+        }
+
+        fmt::println("{}", flattened_results);
+
+        return;
+    }
+
+    if (query_elements.at(where_clause_index + 2) == ">=") {
+        for (auto& table_name : table_names) {
+            std::erase(table_name, ',');
+            auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than_or_equal(
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), condition_column_name, condition_column_value);
+            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+        }
+
+        fmt::println("{}", flattened_results);
+
+        return;
+    }
+
+    if (query_elements.at(where_clause_index + 2) == "<") {
+        for (auto& table_name : table_names) {
+            std::erase(table_name, ',');
+            auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than(
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), condition_column_name, condition_column_value);
+            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+        }
+
+        fmt::println("{}", flattened_results);
+
+        return;
+    }
+
+    if (query_elements.at(where_clause_index + 2) == "<=") {
+        for (auto& table_name : table_names) {
+            std::erase(table_name, ',');
+            auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than_or_equal(
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), condition_column_name, condition_column_value);
+            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+        }
+
+        fmt::println("{}", flattened_results);
+
+        return;
+    }
+
+    if (query_elements.at(where_clause_index + 2) == "LIKE") {
+        for (auto& table_name : table_names) {
+            std::erase(table_name, ',');
+            auto filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_like(
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), condition_column_name, condition_column_value);
+            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+        }
+
+        fmt::println("{}", flattened_results);
     }
 }
 

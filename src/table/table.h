@@ -39,7 +39,9 @@ public:
 
     auto insert_row(const std::vector<std::string>& data) -> void;
     [[nodiscard]] auto get_all_data() const -> std::vector<std::vector<std::string>>;
-    [[nodiscard]] auto get_all_data_from(const std::string& column_name) const -> std::vector<std::string>;
+    [[nodiscard]] auto get_all_data_from(
+        const std::vector<std::string>& column_names
+    ) const -> std::vector<std::vector<std::string>>;
     auto get_data_filtered_by_equality(
         const std::vector<std::vector<std::string>>& data,
         const std::string& condition_column_name,

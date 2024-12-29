@@ -25,19 +25,27 @@ auto Table::get_all_data() const -> std::vector<std::vector<std::string> > {
     return rows;
 }
 
-auto Table::get_all_data_from(const std::string& column_name) const -> std::vector<std::string> {
+auto Table::get_all_data_from(const std::vector<std::string>& column_names) const -> std::vector<std::vector<std::string>> {
 
-    const auto column_index = find_index(column_names, column_name);
+    for (auto column_name : column_names) {
+        std::erase(column_name, ',');
+        const auto column_index = find_index(this->column_names, column_name);
 
-    if (column_index == -1) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", column_name, name);
-        return {};
+        if (column_index == -1) {
+            fmt::println("Column with name '{}' not found in table with name: '{}'", column_name, name);
+            return {};
+        }
     }
 
-    auto data = std::vector<std::string>{};
+    auto data = std::vector<std::vector<std::string>>{};
 
     for (auto row : rows) {
-        data.push_back(row.at(column_index));
+        auto data_from_row = std::vector<std::string>{};
+        for (auto column_name : column_names) {
+            std::erase(column_name, ',');
+            data_from_row.push_back(row.at(find_index(this->column_names, column_name)));
+        }
+        data.push_back(data_from_row);
     }
 
     return data;
@@ -57,7 +65,7 @@ auto Table::get_data_filtered_by_equality(
         return data;
     }
 
-    for (auto& row : rows) {
+    for (auto& row : data) {
         if (row[condition_column_index] == condition_column_value) {
             filtered_data.push_back(row);
         }
@@ -79,7 +87,7 @@ auto Table::get_data_filtered_by_inequality(
         return data;
     }
 
-    for (auto& row : rows) {
+    for (auto& row : data) {
         if (row[condition_column_index] != condition_column_value) {
             filtered_data.push_back(row);
         }
@@ -101,7 +109,7 @@ auto Table::get_data_filtered_by_greater_than(
         return data;
     }
 
-    for (auto& row : rows) {
+    for (auto& row : data) {
         if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) > 0) {
             filtered_data.push_back(row);
         }
@@ -123,7 +131,7 @@ auto Table::get_data_filtered_by_greater_than_or_equal(
         return data;
     }
 
-    for (auto& row : rows) {
+    for (auto& row : data) {
         if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) >= 0) {
             filtered_data.push_back(row);
         }
@@ -145,7 +153,7 @@ auto Table::get_data_filtered_by_less_than(
         return data;
     }
 
-    for (auto& row : rows) {
+    for (auto& row : data) {
         if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) < 0) {
             filtered_data.push_back(row);
         }
@@ -167,7 +175,7 @@ auto Table::get_data_filtered_by_less_than_or_equal(
         return data;
     }
 
-    for (auto& row : rows) {
+    for (auto& row : data) {
         if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) <= 0) {
             filtered_data.push_back(row);
         }
@@ -189,7 +197,7 @@ auto Table::get_data_filtered_by_like(
         return data;
     }
 
-    for (auto& row : rows) {
+    for (auto& row : data) {
         if (matches_pattern(row[condition_column_index], pattern)) {
             filtered_data.push_back(row);
         }
