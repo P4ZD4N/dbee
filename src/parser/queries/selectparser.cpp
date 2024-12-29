@@ -23,22 +23,22 @@ auto SelectParser::parse_select_query(const std::vector<std::string>& query_elem
     const auto column_names = std::vector(query_elements.begin() + 1, query_elements.begin() + from_clause_index);
 
     if (inner_clause_index != -1) {
-        process_select_inner_join_query(query_elements, column_names);
+        fmt::println("{}", get_select_inner_join_result(query_elements, column_names));
         return;
     }
 
     if (left_clause_index != -1) {
-        process_select_left_join_query(query_elements, column_names);
+        fmt::println("{}", get_select_left_join_result(query_elements, column_names));
         return;
     }
 
     if (right_clause_index != -1) {
-        process_select_right_join_query(query_elements, column_names);
+        fmt::println("{}", get_select_right_join_result(query_elements, column_names));
         return;
     }
 
     if (full_clause_index != -1) {
-        process_select_full_join_query(query_elements, column_names);
+        fmt::println("{}", get_select_full_join_result(query_elements, column_names));
         return;
     }
 
@@ -49,10 +49,10 @@ auto SelectParser::parse_select_query(const std::vector<std::string>& query_elem
     print_appropriate_columns_for_where(query_elements, flattened_results);
 }
 
-auto SelectParser::process_select_inner_join_query(
+auto SelectParser::get_select_inner_join_result(
     const std::vector<std::string> &query_elements,
     const std::vector<std::string> &column_names
-) const -> void {
+) const -> std::vector<std::vector<std::string>> {
 
     const auto from_clause_index = find_index(query_elements, "FROM");
     const auto inner_clause_index = find_index(query_elements, "INNER");
@@ -61,7 +61,7 @@ auto SelectParser::process_select_inner_join_query(
 
     if (!is_valid_select_join_query(inner_clause_index, join_clause_index, on_clause_index)) {
         fmt::println("Query with SELECT and INNER clause should contain JOIN and ON clauses!");
-        return;
+        return {};
     }
 
     auto table_names = std::vector(query_elements.begin() + from_clause_index + 1, query_elements.begin() +  inner_clause_index);
@@ -70,17 +70,18 @@ auto SelectParser::process_select_inner_join_query(
     const auto& left = query_elements.at(on_clause_index + 1);
     const auto& right = query_elements.at(on_clause_index + 3);
 
-    if (!validate_tables_and_columns(left, right, query_elements)) return;
+    if (!validate_tables_and_columns(left, right, query_elements)) return {};
 
     if (column_names.size() == 1 and column_names.at(0) == "*") {
-        print_all_columns_for_inner_join(left, right);
-        return;
+        return get_all_columns_for_inner_join(left, right);
     }
 
-    print_specific_columns_for_inner_join(left, right, column_names);
+    return get_specific_columns_for_inner_join(left, right, column_names);
 }
 
-auto SelectParser::print_all_columns_for_inner_join(const std::string &left, const std::string &right) const -> void {
+auto SelectParser::get_all_columns_for_inner_join(
+    const std::string &left, const std::string &right
+) const -> std::vector<std::vector<std::string>> {
     auto data = std::vector<std::vector<std::string>>{};
 
     const auto [left_table_name, left_column_name] = split_string_with_dot(left);
@@ -107,15 +108,15 @@ auto SelectParser::print_all_columns_for_inner_join(const std::string &left, con
         }
     }
 
-    fmt::println("{}", data);
+    return data;
 }
 
-auto SelectParser::print_specific_columns_for_inner_join(
+auto SelectParser::get_specific_columns_for_inner_join(
     const std::string &left,
     const std::string &right,
     const std::vector<std::string> &column_names
-) const -> void {
-auto data = std::vector<std::vector<std::string>>{};
+) const -> std::vector<std::vector<std::string>> {
+    auto data = std::vector<std::vector<std::string>>{};
 
     const auto [left_table_name, left_column_name] = split_string_with_dot(left);
     const auto [right_table_name, right_column_name] = split_string_with_dot(right);
@@ -142,7 +143,7 @@ auto data = std::vector<std::vector<std::string>>{};
 
                         if (c_left_index != -1 && c_right_index != -1) {
                             fmt::println("Column with name '{}' exists in both tables!", column_name);
-                            return;
+                            return {};
                         }
 
                         if (c_left_index != -1) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, column_name)]);
@@ -154,13 +155,13 @@ auto data = std::vector<std::vector<std::string>>{};
         }
     }
 
-    fmt::println("{}", data);
+    return data;
 }
 
-auto SelectParser::process_select_left_join_query(
+auto SelectParser::get_select_left_join_result(
     const std::vector<std::string> &query_elements,
     const std::vector<std::string> &column_names
-) const -> void {
+) const -> std::vector<std::vector<std::string>> {
     const auto from_clause_index = find_index(query_elements, "FROM");
     const auto left_clause_index = find_index(query_elements, "LEFT");
     const auto join_clause_index = find_index(query_elements, "JOIN");
@@ -168,7 +169,7 @@ auto SelectParser::process_select_left_join_query(
 
     if (!is_valid_select_join_query(left_clause_index, join_clause_index, on_clause_index)) {
         fmt::println("Query with SELECT and LEFT clause should contain JOIN and ON clauses!");
-        return;
+        return {};
     }
 
     auto table_names = std::vector(query_elements.begin() + from_clause_index + 1, query_elements.begin() +  left_clause_index);
@@ -177,17 +178,18 @@ auto SelectParser::process_select_left_join_query(
     const auto& left = query_elements.at(on_clause_index + 1);
     const auto& right = query_elements.at(on_clause_index + 3);
 
-    if (!validate_tables_and_columns(left, right, query_elements)) return;
+    if (!validate_tables_and_columns(left, right, query_elements)) return {};
 
     if (column_names.size() == 1 and column_names.at(0) == "*") {
-        print_all_columns_for_left_join(left, right);
-        return;
+        return get_all_columns_for_left_join(left, right);
     }
 
-    print_specific_columns_for_left_join(left, right, column_names);
+    return get_specific_columns_for_left_join(left, right, column_names);
 }
 
-auto SelectParser::print_all_columns_for_left_join(const std::string &left, const std::string &right) const -> void {
+auto SelectParser::get_all_columns_for_left_join(
+    const std::string &left, const std::string &right
+) const -> std::vector<std::vector<std::string>> {
     auto data = std::vector<std::vector<std::string>>{};
 
     const auto [left_table_name, left_column_name] = split_string_with_dot(left);
@@ -222,10 +224,12 @@ auto SelectParser::print_all_columns_for_left_join(const std::string &left, cons
         }
     }
 
-    fmt::println("{}", data);
+    return data;
 }
 
-auto SelectParser::print_specific_columns_for_left_join(const std::string &left, const std::string &right, const std::vector<std::string> &column_names) const -> void {
+auto SelectParser::get_specific_columns_for_left_join(
+    const std::string &left, const std::string &right, const std::vector<std::string> &column_names
+) const -> std::vector<std::vector<std::string>> {
 
     auto data = std::vector<std::vector<std::string>>{};
 
@@ -257,7 +261,7 @@ auto SelectParser::print_specific_columns_for_left_join(const std::string &left,
 
                         if (c_left_index != -1 && c_right_index != -1) {
                             fmt::println("Column with name '{}' exists in both tables!", column_name);
-                            return;
+                            return {};
                         }
 
                         if (c_left_index != -1) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, column_name)]);
@@ -283,7 +287,7 @@ auto SelectParser::print_specific_columns_for_left_join(const std::string &left,
 
                     if (c_left_index != -1 && c_right_index != -1) {
                         fmt::println("Column with name '{}' exists in both tables!", column_name);
-                        return;
+                        return {};
                     }
 
                     if (c_left_index != -1) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, column_name)]);
@@ -294,13 +298,13 @@ auto SelectParser::print_specific_columns_for_left_join(const std::string &left,
         }
     }
 
-    fmt::println("{}", data);
+    return data;
 }
 
-auto SelectParser::process_select_right_join_query(
+auto SelectParser::get_select_right_join_result(
     const std::vector<std::string> &query_elements,
     const std::vector<std::string> &column_names
-) const -> void {
+) const -> std::vector<std::vector<std::string>> {
     const auto from_clause_index = find_index(query_elements, "FROM");
     const auto right_clause_index = find_index(query_elements, "RIGHT");
     const auto join_clause_index = find_index(query_elements, "JOIN");
@@ -308,7 +312,7 @@ auto SelectParser::process_select_right_join_query(
 
     if (!is_valid_select_join_query(right_clause_index, join_clause_index, on_clause_index)) {
         fmt::println("Query with SELECT and RIGHT clause should contain JOIN and ON clauses!");
-        return;
+        return {};
     }
 
     auto table_names = std::vector(query_elements.begin() + from_clause_index + 1, query_elements.begin() +  right_clause_index);
@@ -317,17 +321,18 @@ auto SelectParser::process_select_right_join_query(
     const auto& left = query_elements.at(on_clause_index + 1);
     const auto& right = query_elements.at(on_clause_index + 3);
 
-    if (!validate_tables_and_columns(left, right, query_elements)) return;
+    if (!validate_tables_and_columns(left, right, query_elements)) return {};
 
     if (column_names.size() == 1 and column_names.at(0) == "*") {
-        print_all_columns_for_right_join(left, right);
-        return;
+        return get_all_columns_for_right_join(left, right);
     }
 
-    print_specific_columns_for_right_join(left, right, column_names);
+    return get_specific_columns_for_right_join(left, right, column_names);
 }
 
-auto SelectParser::print_all_columns_for_right_join(const std::string &left, const std::string &right) const -> void {
+auto SelectParser::get_all_columns_for_right_join(
+    const std::string &left, const std::string &right
+) const -> std::vector<std::vector<std::string>> {
 
     auto data = std::vector<std::vector<std::string>>{};
 
@@ -363,14 +368,14 @@ auto SelectParser::print_all_columns_for_right_join(const std::string &left, con
         }
     }
 
-    fmt::println("{}", data);
+    return data;
 }
 
-auto SelectParser::print_specific_columns_for_right_join(
+auto SelectParser::get_specific_columns_for_right_join(
     const std::string &left,
     const std::string &right,
     const std::vector<std::string> &column_names
-) const -> void {
+) const -> std::vector<std::vector<std::string>> {
 
     auto data = std::vector<std::vector<std::string>>{};
 
@@ -402,7 +407,7 @@ auto SelectParser::print_specific_columns_for_right_join(
 
                         if (c_left_index != -1 && c_right_index != -1) {
                             fmt::println("Column with name '{}' exists in both tables!", column_name);
-                            return;
+                            return {};
                         }
 
                         if (c_left_index != -1) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, column_name)]);
@@ -428,7 +433,7 @@ auto SelectParser::print_specific_columns_for_right_join(
 
                     if (c_left_index != -1 && c_right_index != -1) {
                         fmt::println("Column with name '{}' exists in both tables!", column_name);
-                        return;
+                        return {};
                     }
 
                     if (c_right_index != -1) combined_data.push_back(right_table_data[Table::find_index(right_table.column_names, column_name)]);
@@ -439,13 +444,13 @@ auto SelectParser::print_specific_columns_for_right_join(
         }
     }
 
-    fmt::println("{}", data);
+    return data;
 }
 
-auto SelectParser::process_select_full_join_query(
+auto SelectParser::get_select_full_join_result(
     const std::vector<std::string>& query_elements,
     const std::vector<std::string>& column_names
-) const -> void {
+) const -> std::vector<std::vector<std::string>> {
 
     const auto from_clause_index = find_index(query_elements, "FROM");
     const auto full_clause_index = find_index(query_elements, "FULL");
@@ -454,7 +459,7 @@ auto SelectParser::process_select_full_join_query(
 
     if (!is_valid_select_join_query(full_clause_index, join_clause_index, on_clause_index)) {
         fmt::println("Query with SELECT and FULL clause should contain JOIN and ON clauses!");
-        return;
+        return {};
     }
 
     auto table_names = std::vector(query_elements.begin() + from_clause_index + 1, query_elements.begin() +  full_clause_index);
@@ -463,20 +468,19 @@ auto SelectParser::process_select_full_join_query(
     const auto& left = query_elements.at(on_clause_index + 1);
     const auto& right = query_elements.at(on_clause_index + 3);
 
-    if (!validate_tables_and_columns(left, right, query_elements)) return;
+    if (!validate_tables_and_columns(left, right, query_elements)) return {};
 
     if (column_names.size() == 1 and column_names.at(0) == "*") {
-        print_all_columns_for_full_join(left, right);
-        return;
+        return get_all_columns_for_full_join(left, right);
     }
 
-    print_specific_columns_for_full_join(left, right, column_names);
+    return get_specific_columns_for_full_join(left, right, column_names);
 }
 
-auto SelectParser::print_all_columns_for_full_join(
+auto SelectParser::get_all_columns_for_full_join(
     const std::string& left,
     const std::string& right
-) const -> void {
+) const -> std::vector<std::vector<std::string>> {
 
     auto data = std::vector<std::vector<std::string>>{};
     auto seen_rows = std::set<std::vector<std::string>>{};
@@ -531,14 +535,14 @@ auto SelectParser::print_all_columns_for_full_join(
         }
     }
 
-    fmt::println("{}", data);
+    return data;
 }
 
-auto SelectParser::print_specific_columns_for_full_join(
+auto SelectParser::get_specific_columns_for_full_join(
     const std::string& left,
     const std::string& right,
     const std::vector<std::string>& column_names
-) const -> void {
+) const -> std::vector<std::vector<std::string>> {
 
     auto data = std::vector<std::vector<std::string>>{};
     auto seen_rows = std::set<std::vector<std::string>>{};
@@ -571,7 +575,7 @@ auto SelectParser::print_specific_columns_for_full_join(
 
                         if (c_left_index != -1 && c_right_index != -1) {
                             fmt::println("Column with name '{}' exists in both tables!", column_name);
-                            return;
+                            return {};
                         }
 
                         if (c_left_index != -1) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, column_name)]);
@@ -597,7 +601,7 @@ auto SelectParser::print_specific_columns_for_full_join(
 
                     if (c_left_index != -1 && c_right_index != -1) {
                         fmt::println("Column with name '{}' exists in both tables!", column_name);
-                        return;
+                        return {};
                     }
 
                     if (c_left_index != -1) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, column_name)]);
@@ -627,7 +631,7 @@ auto SelectParser::print_specific_columns_for_full_join(
 
                         if (c_left_index != -1 && c_right_index != -1) {
                             fmt::println("Column with name '{}' exists in both tables!", column_name);
-                            return;
+                            return {};
                         }
 
                         if (c_left_index != -1) combined_data.push_back(left_table_data[Table::find_index(left_table.column_names, column_name)]);
@@ -653,7 +657,7 @@ auto SelectParser::print_specific_columns_for_full_join(
 
                     if (c_left_index != -1 && c_right_index != -1) {
                         fmt::println("Column with name '{}' exists in both tables!", column_name);
-                        return;
+                        return {};
                     }
 
                     if (c_right_index != -1) combined_data.push_back(right_table_data[Table::find_index(right_table.column_names, column_name)]);
@@ -664,7 +668,7 @@ auto SelectParser::print_specific_columns_for_full_join(
         }
     }
 
-    fmt::println("{}", data);
+    return data;
 }
 
 auto SelectParser::print_appropriate_columns_for_where(

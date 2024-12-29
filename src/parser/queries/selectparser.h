@@ -11,69 +11,69 @@ struct SelectParser {
     auto parse_select_query(const std::vector<std::string>& query_elements) const -> void;
 
 private:
-    auto process_select_inner_join_query(
+    [[nodiscard]] auto get_select_inner_join_result(
            const std::vector<std::string>& query_elements,
            const std::vector<std::string>& column_names
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_all_columns_for_inner_join(
+    [[nodiscard]] auto get_all_columns_for_inner_join(
         const std::string& left,
         const std::string& right
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_specific_columns_for_inner_join(
+    [[nodiscard]] auto get_specific_columns_for_inner_join(
         const std::string& left,
         const std::string& right,
         const std::vector<std::string>& column_names
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto process_select_left_join_query(
+    [[nodiscard]] auto get_select_left_join_result(
         const std::vector<std::string>& query_elements,
         const std::vector<std::string>& column_names
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_all_columns_for_left_join(
+    [[nodiscard]] auto get_all_columns_for_left_join(
         const std::string& left,
         const std::string& right
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_specific_columns_for_left_join(
+    [[nodiscard]] auto get_specific_columns_for_left_join(
         const std::string& left,
         const std::string& right,
         const std::vector<std::string>& column_names
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto process_select_right_join_query(
+    [[nodiscard]] auto get_select_right_join_result(
         const std::vector<std::string>& query_elements,
         const std::vector<std::string>& column_names
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_all_columns_for_right_join(
+    [[nodiscard]] auto get_all_columns_for_right_join(
         const std::string& left,
         const std::string& right
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_specific_columns_for_right_join(
+    [[nodiscard]] auto get_specific_columns_for_right_join(
         const std::string& left,
         const std::string& right,
         const std::vector<std::string>& column_names
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto process_select_full_join_query(
+    [[nodiscard]] auto get_select_full_join_result(
         const std::vector<std::string>& query_elements,
         const std::vector<std::string>& column_names
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_all_columns_for_full_join(
+    [[nodiscard]] auto get_all_columns_for_full_join(
         const std::string& left,
         const std::string& right
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_specific_columns_for_full_join(
+    [[nodiscard]] auto get_specific_columns_for_full_join(
         const std::string& left,
         const std::string& right,
         const std::vector<std::string>& column_names
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
     auto print_appropriate_columns_for_where(
         const std::vector<std::string>& query_elements,
