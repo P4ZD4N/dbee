@@ -57,25 +57,13 @@ auto Table::get_data_filtered_by_equality(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> std::vector<std::vector<std::string>> {
+    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
+        this->column_names :
+        column_names;
 
-    auto filtered_data = std::vector<std::vector<std::string>>{};
-    const auto condition_column_indices = find_indices(column_names, condition_column_name);
-
-    if (condition_column_indices.empty()) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return data;
-    }
-
-    for (auto& row : data) {
-        for (const auto& index : condition_column_indices) {
-            if (row[index] == condition_column_value) {
-                filtered_data.push_back(row);
-                break;
-            }
-        }
-    }
-
-    return filtered_data;
+    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, int) {
+        return value == condition_column_value;
+    });
 }
 
 auto Table::get_data_filtered_by_inequality(
@@ -84,24 +72,13 @@ auto Table::get_data_filtered_by_inequality(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> std::vector<std::vector<std::string>> {
-    auto filtered_data = std::vector<std::vector<std::string>>{};
-    const auto condition_column_indices = find_indices(column_names, condition_column_name);
+    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
+        this->column_names :
+        column_names;
 
-    if (condition_column_indices.empty()) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return data;
-    }
-
-    for (auto& row : data) {
-        for (const auto& index : condition_column_indices) {
-            if (row[index] != condition_column_value) {
-                filtered_data.push_back(row);
-                break;
-            }
-        }
-    }
-
-    return filtered_data;
+    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, int) {
+        return value != condition_column_value;
+    });
 }
 
 auto Table::get_data_filtered_by_greater_than(
@@ -110,24 +87,13 @@ auto Table::get_data_filtered_by_greater_than(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> std::vector<std::vector<std::string> > {
-    auto filtered_data = std::vector<std::vector<std::string>>{};
-    const auto condition_column_indices = find_indices(column_names, condition_column_name);
+    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
+        this->column_names :
+        column_names;
 
-    if (condition_column_indices.empty()) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return data;
-    }
-
-    for (auto& row : data) {
-        for (const auto& index : condition_column_indices) {
-            if (compare_values(row[index], condition_column_value, column_types.at(index)) > 0) {
-                filtered_data.push_back(row);
-                break;
-            }
-        }
-    }
-
-    return filtered_data;
+    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) > 0;
+    });
 }
 
 auto Table::get_data_filtered_by_greater_than_or_equal(
@@ -136,24 +102,13 @@ auto Table::get_data_filtered_by_greater_than_or_equal(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> std::vector<std::vector<std::string>> {
-    auto filtered_data = std::vector<std::vector<std::string>>{};
-    const auto condition_column_indices = find_indices(column_names, condition_column_name);
+    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
+        this->column_names :
+        column_names;
 
-    if (condition_column_indices.empty()) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return data;
-    }
-
-    for (auto& row : data) {
-        for (const auto& index : condition_column_indices) {
-            if (compare_values(row[index], condition_column_value, column_types.at(index)) >= 0) {
-                filtered_data.push_back(row);
-                break;
-            }
-        }
-    }
-
-    return filtered_data;
+    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) >= 0;
+    });
 }
 
 auto Table::get_data_filtered_by_less_than(
@@ -162,24 +117,13 @@ auto Table::get_data_filtered_by_less_than(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> std::vector<std::vector<std::string>> {
-    auto filtered_data = std::vector<std::vector<std::string>>{};
-    const auto condition_column_indices = find_indices(column_names, condition_column_name);
+    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
+        this->column_names :
+        column_names;
 
-    if (condition_column_indices.empty()) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return data;
-    }
-
-    for (auto& row : data) {
-        for (const auto& index : condition_column_indices) {
-            if (compare_values(row[index], condition_column_value, column_types.at(index)) < 0) {
-                filtered_data.push_back(row);
-                break;
-            }
-        }
-    }
-
-    return filtered_data;
+    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) < 0;
+    });
 }
 
 auto Table::get_data_filtered_by_less_than_or_equal(
@@ -188,24 +132,13 @@ auto Table::get_data_filtered_by_less_than_or_equal(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> std::vector<std::vector<std::string>> {
-    auto filtered_data = std::vector<std::vector<std::string>>{};
-    const auto condition_column_indices = find_indices(column_names, condition_column_name);
+    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
+        this->column_names :
+        column_names;
 
-    if (condition_column_indices.empty()) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return data;
-    }
-
-    for (auto& row : data) {
-        for (const auto& index : condition_column_indices) {
-            if (compare_values(row[index], condition_column_value, column_types.at(index)) <= 0) {
-                filtered_data.push_back(row);
-                break;
-            }
-        }
-    }
-
-    return filtered_data;
+    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) <= 0;
+    });
 }
 
 auto Table::get_data_filtered_by_like(
@@ -214,24 +147,13 @@ auto Table::get_data_filtered_by_like(
     const std::string& condition_column_name,
     const std::string& pattern
 ) -> std::vector<std::vector<std::string>> {
-    auto filtered_data = std::vector<std::vector<std::string>>{};
-    const auto condition_column_indices = find_indices(column_names, condition_column_name);
+    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
+        this->column_names :
+        column_names;
 
-    if (condition_column_indices.empty()) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return data;
-    }
-
-    for (auto& row : data) {
-        for (const auto& index : condition_column_indices) {
-            if (matches_pattern(row[index], pattern)) {
-                filtered_data.push_back(row);
-                break;
-            }
-        }
-    }
-
-    return filtered_data;
+    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, int) {
+        return matches_pattern(value, pattern);
+    });
 }
 
 auto Table::find_index(const std::vector<std::string> &vec, const std::string &value) -> int {
@@ -314,20 +236,11 @@ auto Table::update_specific_rows_by_equality(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> void {
+    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, int) {
+        return value == condition_column_value;
+    });
 
-    const auto column_index = find_index(column_names, column_name);
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
-
-    for (auto& row : rows) {
-        if (row[condition_column_index] == condition_column_value) {
-            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
-            row[column_index] = new_value;
-        }
-    }
-
-    fmt::println("Successfully deleted rows where column '{}' equals '{}'", condition_column_name, condition_column_value);
+    fmt::println("Successfully updated rows where column '{}' equals '{}'", condition_column_name, condition_column_value);
 }
 
 auto Table::update_specific_rows_by_inequality(
@@ -336,19 +249,11 @@ auto Table::update_specific_rows_by_inequality(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> void {
-    const auto column_index = find_index(column_names, column_name);
-    const auto condition_column_index = find_index(column_names, condition_column_name);
+    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, int) {
+        return value != condition_column_value;
+    });
 
-    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
-
-    for (auto& row : rows) {
-        if (row[condition_column_index] != condition_column_value) {
-            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
-            row[column_index] = new_value;
-        }
-    }
-
-    fmt::println("Successfully deleted rows where column '{}' not equals '{}'", condition_column_name, condition_column_value);
+    fmt::println("Successfully updated rows where column '{}' not equals '{}'", condition_column_name, condition_column_value);
 }
 
 auto Table::update_specific_rows_by_greater_than(
@@ -357,20 +262,11 @@ auto Table::update_specific_rows_by_greater_than(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> void {
+    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) > 0;
+    });
 
-    const auto column_index = find_index(column_names, column_name);
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
-
-    for (auto& row : rows) {
-        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) > 0) {
-            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
-            row[column_index] = new_value;
-        }
-    }
-
-    fmt::println("Successfully deleted rows where column '{}' greater than '{}'", condition_column_name, condition_column_value);
+    fmt::println("Successfully updated rows where column '{}' greater than '{}'", condition_column_name, condition_column_value);
 }
 
 auto Table::update_specific_rows_by_greater_than_or_equal(
@@ -379,18 +275,9 @@ auto Table::update_specific_rows_by_greater_than_or_equal(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> void {
-
-    const auto column_index = find_index(column_names, column_name);
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
-
-    for (auto& row : rows) {
-        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) >= 0) {
-            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
-            row[column_index] = new_value;
-        }
-    }
+    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) >= 0;
+    });
 
     fmt::println("Successfully updated rows where column '{}' greater than or equals '{}'", condition_column_name, condition_column_value);
 }
@@ -402,19 +289,9 @@ auto Table::update_specific_rows_by_less_than(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> void {
-
-    const auto column_index = find_index(column_names, column_name);
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
-
-    for (auto& row : rows) {
-
-        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) < 0) {
-            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
-            row[column_index] = new_value;
-        }
-    }
+    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) < 0;
+    });
 
     fmt::println("Successfully updated rows where column '{}' less than '{}'", condition_column_name, condition_column_value);
 }
@@ -425,18 +302,9 @@ auto Table::update_specific_rows_by_less_than_or_equal(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> void {
-
-    const auto column_index = find_index(column_names, column_name);
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
-
-    for (auto& row : rows) {
-        if (compare_values(row[condition_column_index], condition_column_value, column_types.at(condition_column_index)) <= 0) {
-            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
-            row[column_index] = new_value;
-        }
-    }
+    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) <= 0;
+    });
 
     fmt::println("Successfully updated rows where column '{}' less than or equals '{}'", condition_column_name, condition_column_value);
 }
@@ -447,18 +315,9 @@ auto Table::update_specific_rows_by_like(
     const std::string& condition_column_name,
     const std::string& pattern
 ) -> void {
-
-    const auto column_index = find_index(column_names, column_name);
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
-
-    for (auto& row : rows) {
-        if (matches_pattern(row[condition_column_index], pattern)) {
-            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
-            row[column_index] = new_value;
-        }
-    }
+    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, int) {
+        return matches_pattern(value, pattern);
+    });
 
     fmt::println("Successfully updated rows where column '{}' matches '{}' pattern", condition_column_name, pattern);
 }
@@ -474,18 +333,9 @@ auto Table::delete_specific_rows_by_equality(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> void {
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (condition_column_index == -1) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return;
-    }
-
-    for (auto it = rows.begin(); it != rows.end(); ) {
-        if ((*it)[condition_column_index] == condition_column_value) {
-            it = rows.erase(it);
-        } else ++it;
-    }
+    delete_rows_by_condition(condition_column_name, [&](const std::string& value, int) {
+        return value == condition_column_value;
+    });
 
     fmt::println("Successfully deleted rows where column '{}' equals '{}'", condition_column_name, condition_column_value);
 }
@@ -494,18 +344,9 @@ auto Table::delete_specific_rows_by_inequality(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> void {
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (condition_column_index == -1) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return;
-    }
-
-    for (auto it = rows.begin(); it != rows.end(); ) {
-        if ((*it)[condition_column_index] != condition_column_value) {
-            it = rows.erase(it);
-        } else ++it;
-    }
+    delete_rows_by_condition(condition_column_name, [&](const std::string& value, int) {
+        return value != condition_column_value;
+    });
 
     fmt::println("Successfully deleted rows where column '{}' not equals '{}'", condition_column_name, condition_column_value);
 }
@@ -514,18 +355,9 @@ auto Table::delete_specific_rows_by_greater_than(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> void {
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (condition_column_index == -1) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return;
-    }
-
-    for (auto it = rows.begin(); it != rows.end(); ) {
-        if (compare_values((*it)[condition_column_index], condition_column_value, column_types.at(condition_column_index)) > 0) {
-            it = rows.erase(it);
-        } else ++it;
-    }
+    delete_rows_by_condition(condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) > 0;
+    });
 
     fmt::println("Successfully deleted rows where column '{}' greater than '{}'", condition_column_name, condition_column_value);
 }
@@ -534,35 +366,20 @@ auto Table::delete_specific_rows_by_greater_than_or_equal(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> void {
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (condition_column_index == -1) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return;
-    }
-
-    for (auto it = rows.begin(); it != rows.end(); ) {
-        if (compare_values((*it)[condition_column_index], condition_column_value, column_types.at(condition_column_index)) >= 0) {
-            it = rows.erase(it);
-        } else ++it;
-    }
+    delete_rows_by_condition(condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) >= 0;
+    });
 
     fmt::println("Successfully deleted rows where column '{}' greater than or equals '{}'", condition_column_name, condition_column_value);
 }
 
-auto Table::delete_specific_rows_by_less_than(const std::string &condition_column_name, const std::string &condition_column_value) -> void {
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (condition_column_index == -1) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return;
-    }
-
-    for (auto it = rows.begin(); it != rows.end(); ) {
-        if (compare_values((*it)[condition_column_index], condition_column_value, column_types.at(condition_column_index)) < 0) {
-            it = rows.erase(it);
-        } else ++it;
-    }
+auto Table::delete_specific_rows_by_less_than(
+    const std::string &condition_column_name,
+    const std::string &condition_column_value
+) -> void {
+    delete_rows_by_condition(condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) < 0;
+    });
 
     fmt::println("Successfully deleted rows where column '{}' less than '{}'", condition_column_name, condition_column_value);
 }
@@ -571,18 +388,9 @@ auto Table::delete_specific_rows_by_less_than_or_equal(
     const std::string& condition_column_name,
     const std::string& condition_column_value
 ) -> void {
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (condition_column_index == -1) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return;
-    }
-
-    for (auto it = rows.begin(); it != rows.end(); ) {
-        if (compare_values((*it)[condition_column_index], condition_column_value, column_types.at(condition_column_index)) <= 0) {
-            it = rows.erase(it);
-        } else ++it;
-    }
+    delete_rows_by_condition(condition_column_name, [&](const std::string& value, const int index) {
+        return compare_values(value, condition_column_value, column_types.at(index)) <= 0;
+    });
 
     fmt::println("Successfully deleted rows where column '{}' less than or equals '{}'", condition_column_name, condition_column_value);
 }
@@ -591,18 +399,9 @@ auto Table::delete_specific_rows_by_like(
     const std::string& condition_column_name,
     const std::string& pattern
 ) -> void {
-    const auto condition_column_index = find_index(column_names, condition_column_name);
-
-    if (condition_column_index == -1) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return;
-    }
-
-    for (auto it = rows.begin(); it != rows.end(); ) {
-        if (matches_pattern((*it)[condition_column_index], pattern)) {
-            it = rows.erase(it);
-        } else ++it;
-    }
+    delete_rows_by_condition(condition_column_name, [&](const std::string& value, int) {
+        return matches_pattern(value, pattern);
+    });
 
     fmt::println("Successfully deleted rows where column '{}' matches '{}' pattern", condition_column_name, pattern);
 }
@@ -695,7 +494,6 @@ auto Table::validate_constraints(
     return true;
 }
 
-
 auto Table::validate_value(
     const std::string& value,
     const ColumnType& column_type,
@@ -747,4 +545,67 @@ auto Table::find_indices(const std::vector<std::string>& vec, const std::string&
     }
 
     return indices;
+}
+
+auto Table::filter_data(
+    const std::vector<std::vector<std::string>> &data,
+    const std::vector<std::string> &column_names,
+    const std::string &condition_column_name,
+    const std::function<bool(const std::string&, int)> &condition
+) -> std::vector<std::vector<std::string>> {
+    auto filtered_data = std::vector<std::vector<std::string>>{};
+    const auto condition_column_indices = find_indices(column_names, condition_column_name);
+
+    if (condition_column_indices.empty()) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return data;
+    }
+
+    for (const auto& row : data) {
+        for (const auto& index : condition_column_indices) {
+            if (condition(row[index], index)) {
+                filtered_data.push_back(row);
+                break;
+            }
+        }
+    }
+
+    return filtered_data;
+}
+
+auto Table::update_rows_by_condition(
+    const std::string &column_name,
+    const std::string &new_value,
+    const std::string &condition_column_name,
+    const std::function<bool(const std::string &, int)> &condition
+) -> void {
+    const auto column_index = find_index(column_names, column_name);
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (!validate_column_index_and_value(column_name, condition_column_name, new_value)) return;
+
+    for (auto& row : rows) {
+        if (condition(row[condition_column_index], condition_column_index)) {
+            if (!validate_constraints(column_name, column_index, row, new_value)) continue;
+            row[column_index] = new_value;
+        }
+    }
+}
+
+auto Table::delete_rows_by_condition(
+    const std::string &condition_column_name,
+    const std::function<bool(const std::string&, int)> &condition
+) -> void {
+    const auto condition_column_index = find_index(column_names, condition_column_name);
+
+    if (condition_column_index == -1) {
+        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
+        return;
+    }
+
+    for (auto it = rows.begin(); it != rows.end(); ) {
+        if (condition((*it)[condition_column_index], condition_column_index)) {
+            it = rows.erase(it);
+        } else ++it;
+    }
 }

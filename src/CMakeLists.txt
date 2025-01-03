@@ -36,5 +36,6 @@ add_executable(dbee main.cpp
         parser/queries/updateparser.h
         parser/queries/deleteparser.cpp
         parser/queries/deleteparser.h
+        enums/jointype.h
 )
 target_link_libraries(dbee fmt)

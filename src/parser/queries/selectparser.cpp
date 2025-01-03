@@ -53,42 +53,10 @@ auto SelectParser::get_select_inner_join_result(
     if (!validate_tables_and_columns(left, right, query_elements)) return {};
 
     if (column_names.size() == 1 and column_names.at(0) == "*") {
-        return get_all_columns_for_inner_join(left, right);
+        return get_all_columns_for_join(left, right, JoinType::INNER);
     }
 
     return get_specific_columns_for_inner_join(left, right, column_names);
-}
-
-auto SelectParser::get_all_columns_for_inner_join(
-    const std::string &left, const std::string &right
-) const -> std::vector<std::vector<std::string>> {
-    auto data = std::vector<std::vector<std::string>>{};
-
-    const auto [left_table_name, left_column_name] = split_string_with_dot(left);
-    const auto [right_table_name, right_column_name] = split_string_with_dot(right);
-
-    auto left_table = parser.database.value().tables.find(left_table_name)->second;
-    auto right_table = parser.database.value().tables.find(right_table_name)->second;
-
-    const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
-    const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
-
-    for (auto left_table_data : left_table.get_all_data()) {
-
-        auto combined_data = std::vector<std::string>{};
-
-        for (auto right_table_data : right_table.get_all_data()) {
-
-            if (left_table_data[left_column_id] == right_table_data[right_column_id]) {
-                for (const auto& element : left_table_data) combined_data.push_back(element);
-                for (const auto& element : right_table_data) combined_data.push_back(element);
-                data.push_back(combined_data);
-                combined_data.clear();
-            }
-        }
-    }
-
-    return data;
 }
 
 auto SelectParser::get_specific_columns_for_inner_join(
@@ -161,50 +129,10 @@ auto SelectParser::get_select_left_join_result(
     if (!validate_tables_and_columns(left, right, query_elements)) return {};
 
     if (column_names.size() == 1 and column_names.at(0) == "*") {
-        return get_all_columns_for_left_join(left, right);
+        return get_all_columns_for_join(left, right, JoinType::LEFT);
     }
 
     return get_specific_columns_for_left_join(left, right, column_names);
-}
-
-auto SelectParser::get_all_columns_for_left_join(
-    const std::string &left, const std::string &right
-) const -> std::vector<std::vector<std::string>> {
-    auto data = std::vector<std::vector<std::string>>{};
-
-    const auto [left_table_name, left_column_name] = split_string_with_dot(left);
-    const auto [right_table_name, right_column_name] = split_string_with_dot(right);
-
-    auto left_table = parser.database.value().tables.find(left_table_name)->second;
-    auto right_table = parser.database.value().tables.find(right_table_name)->second;
-
-    const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
-    const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
-
-    for (auto left_table_data : left_table.get_all_data()) {
-
-        auto match_found = false;
-
-        for (auto right_table_data : right_table.get_all_data()) {
-            if (left_table_data[left_column_id] == right_table_data[right_column_id]) {
-                auto combined_data = std::vector<std::string>{};
-                for (const auto& element : left_table_data) combined_data.push_back(element);
-                for (const auto& element : right_table_data) combined_data.push_back(element);
-                data.push_back(combined_data);
-                combined_data.clear();
-                match_found = true;
-            }
-        }
-
-        if (!match_found) {
-            auto combined_data = std::vector<std::string>{};
-            for (const auto& element : left_table_data) combined_data.push_back(element);
-            for (auto i = 0; i < right_table.column_names.size(); i++) combined_data.emplace_back("");
-            data.push_back(combined_data);
-        }
-    }
-
-    return data;
 }
 
 auto SelectParser::get_specific_columns_for_left_join(
@@ -304,51 +232,10 @@ auto SelectParser::get_select_right_join_result(
     if (!validate_tables_and_columns(left, right, query_elements)) return {};
 
     if (column_names.size() == 1 and column_names.at(0) == "*") {
-        return get_all_columns_for_right_join(left, right);
+        return get_all_columns_for_join(left, right, JoinType::RIGHT);
     }
 
     return get_specific_columns_for_right_join(left, right, column_names);
-}
-
-auto SelectParser::get_all_columns_for_right_join(
-    const std::string &left, const std::string &right
-) const -> std::vector<std::vector<std::string>> {
-
-    auto data = std::vector<std::vector<std::string>>{};
-
-    const auto [left_table_name, left_column_name] = split_string_with_dot(left);
-    const auto [right_table_name, right_column_name] = split_string_with_dot(right);
-
-    auto left_table = parser.database.value().tables.find(left_table_name)->second;
-    auto right_table = parser.database.value().tables.find(right_table_name)->second;
-
-    const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
-    const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
-
-    for (auto right_table_data : right_table.get_all_data()) {
-
-        auto match_found = false;
-
-        for (auto left_table_data : left_table.get_all_data()) {
-            if (right_table_data[right_column_id] == left_table_data[left_column_id]) {
-                auto combined_data = std::vector<std::string>{};
-                for (const auto& element : left_table_data) combined_data.push_back(element);
-                for (const auto& element : right_table_data) combined_data.push_back(element);
-                data.push_back(combined_data);
-                combined_data.clear();
-                match_found = true;
-            }
-        }
-
-        if (!match_found) {
-            auto combined_data = std::vector<std::string>{};
-            for (auto i = 0; i < left_table.column_names.size(); i++) combined_data.emplace_back("");
-            for (const auto& element : right_table_data) combined_data.push_back(element);
-            data.push_back(combined_data);
-        }
-    }
-
-    return data;
 }
 
 auto SelectParser::get_specific_columns_for_right_join(
@@ -451,71 +338,10 @@ auto SelectParser::get_select_full_join_result(
     if (!validate_tables_and_columns(left, right, query_elements)) return {};
 
     if (column_names.size() == 1 and column_names.at(0) == "*") {
-        return get_all_columns_for_full_join(left, right);
+        return get_all_columns_for_join(left, right, JoinType::FULL);
     }
 
     return get_specific_columns_for_full_join(left, right, column_names);
-}
-
-auto SelectParser::get_all_columns_for_full_join(
-    const std::string& left,
-    const std::string& right
-) const -> std::vector<std::vector<std::string>> {
-
-    auto data = std::vector<std::vector<std::string>>{};
-    auto seen_rows = std::set<std::vector<std::string>>{};
-
-    const auto [left_table_name, left_column_name] = split_string_with_dot(left);
-    const auto [right_table_name, right_column_name] = split_string_with_dot(right);
-
-    auto left_table = parser.database.value().tables.find(left_table_name)->second;
-    auto right_table = parser.database.value().tables.find(right_table_name)->second;
-
-    const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
-    const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
-
-    for (auto left_table_data : left_table.get_all_data()) {
-
-        auto match_found = false;
-
-        for (auto right_table_data : right_table.get_all_data()) {
-            if (left_table_data[left_column_id] == right_table_data[right_column_id]) {
-                auto combined_data = std::vector<std::string>{};
-                for (const auto& element : left_table_data) combined_data.push_back(element);
-                for (const auto& element : right_table_data) combined_data.push_back(element);
-                if (seen_rows.insert(combined_data).second) data.push_back(combined_data);
-                match_found = true;
-            }
-        }
-
-        if (!match_found) {
-            auto combined_data = std::vector<std::string>{};
-            for (const auto& element : left_table_data) combined_data.push_back(element);
-            for (auto i = 0; i < right_table.column_names.size(); i++) combined_data.emplace_back("");
-            data.push_back(combined_data);
-        }
-    }
-
-    for (auto right_table_data : right_table.get_all_data()) {
-
-        auto match_found = false;
-
-        for (auto& left_table_data : left_table.get_all_data()) {
-            if (right_table_data[right_column_id] == left_table_data[left_column_id]) {
-                match_found = true;
-                break;
-            }
-        }
-
-        if (!match_found) {
-            auto combined_data = std::vector<std::string>{};
-            for (auto i = 0; i < left_table.column_names.size(); i++) combined_data.emplace_back("");
-            for (const auto& element : right_table_data) combined_data.push_back(element);
-            if (seen_rows.insert(combined_data).second) data.push_back(combined_data);
-        }
-    }
-
-    return data;
 }
 
 auto SelectParser::get_specific_columns_for_full_join(
@@ -651,6 +477,73 @@ auto SelectParser::get_specific_columns_for_full_join(
     return data;
 }
 
+auto SelectParser::get_all_columns_for_join(
+    const std::string &left,
+    const std::string &right,
+    const JoinType& join_type
+) const -> std::vector<std::vector<std::string>> {
+    auto data = std::vector<std::vector<std::string>>{};
+    auto seen_rows = std::set<std::vector<std::string>>{};
+
+    const auto [left_table_name, left_column_name] = split_string_with_dot(left);
+    const auto [right_table_name, right_column_name] = split_string_with_dot(right);
+
+    auto left_table = parser.database.value().tables.find(left_table_name)->second;
+    auto right_table = parser.database.value().tables.find(right_table_name)->second;
+
+    const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
+    const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
+
+    for (auto left_table_data : left_table.get_all_data()) {
+        auto match_found = false;
+
+        for (auto right_table_data : right_table.get_all_data()) {
+            if (left_table_data[left_column_id] == right_table_data[right_column_id]) {
+                auto combined_data = std::vector<std::string>{};
+                for (const auto& element : left_table_data) combined_data.push_back(element);
+                for (const auto& element : right_table_data) combined_data.push_back(element);
+                if (seen_rows.insert(combined_data).second) data.push_back(combined_data);
+                match_found = true;
+            }
+        }
+
+        if (!match_found) {
+            auto combined_data = std::vector<std::string>{};
+            for (const auto& element : left_table_data) combined_data.push_back(element);
+
+            if (join_type == JoinType::LEFT || join_type == JoinType::FULL) {
+                for (auto i = 0; i < right_table.column_names.size(); i++) combined_data.emplace_back("");
+            }
+
+            if (join_type == JoinType::FULL) {
+                if (seen_rows.insert(combined_data).second) data.push_back(combined_data);
+            } else if (join_type == JoinType::LEFT) data.push_back(combined_data);
+        }
+    }
+
+    if (join_type == JoinType::RIGHT || join_type == JoinType::FULL) {
+        for (auto right_table_data : right_table.get_all_data()) {
+            bool match_found = false;
+            for (auto& left_table_data : left_table.get_all_data()) {
+                if (right_table_data[right_column_id] == left_table_data[left_column_id]) {
+                    match_found = true;
+                    break;
+                }
+            }
+
+            if (!match_found) {
+                auto combined_data = std::vector<std::string>{};
+                for (auto i = 0; i < left_table.column_names.size(); i++) combined_data.emplace_back("");
+                for (const auto& element : right_table_data) combined_data.push_back(element);
+
+                if (seen_rows.insert(combined_data).second) data.push_back(combined_data);
+            }
+        }
+    }
+
+    return data;
+}
+
 auto SelectParser::print_appropriate_columns_without_joins(
     const std::vector<std::string>& query_elements
 ) const -> void {
@@ -681,113 +574,43 @@ auto SelectParser::print_appropriate_columns_without_joins(
     const auto& condition_column_value = query_elements.at(where_clause_index + 3);
 
     if (query_elements.at(where_clause_index + 2) == "=") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
-            auto filtered_data = column_names.size() == 1 && column_names.at(0) == "*" ?
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_equality(
-                    database.value().tables.find(table_name)->second.get_all_data(), column_names, condition_column_name, condition_column_value) :
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_equality(
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), column_names, condition_column_name, condition_column_value);
-            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
-        }
-
-        fmt::println("{}", flattened_results);
-
+        print_data_filtered_by_equality(table_names, column_names, condition_column_name, condition_column_value, false, {});
         return;
     }
 
     if (query_elements.at(where_clause_index + 2) == "<>" || query_elements.at(where_clause_index + 2) == "!=") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
-            auto filtered_data = column_names.size() == 1 && column_names.at(0) == "*" ?
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_inequality(
-                    database.value().tables.find(table_name)->second.get_all_data(), column_names, condition_column_name, condition_column_value) :
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_inequality(
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), column_names, condition_column_name, condition_column_value);
-            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
-        }
-
-        fmt::println("{}", flattened_results);
-
+        print_data_filtered_by_inequality(
+            table_names, column_names, condition_column_name, condition_column_value, false, {});
         return;
     }
 
     if (query_elements.at(where_clause_index + 2) == ">") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
-            auto filtered_data = column_names.size() == 1 && column_names.at(0) == "*" ?
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than(
-                    database.value().tables.find(table_name)->second.get_all_data(), column_names, condition_column_name, condition_column_value) :
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than(
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), column_names, condition_column_name, condition_column_value);
-            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
-        }
-
-        fmt::println("{}", flattened_results);
-
+        print_data_filtered_by_greater_than(
+            table_names, column_names, condition_column_name, condition_column_value, false, {});
         return;
     }
 
     if (query_elements.at(where_clause_index + 2) == ">=") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
-            auto filtered_data = column_names.size() == 1 && column_names.at(0) == "*" ?
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than_or_equal(
-                    database.value().tables.find(table_name)->second.get_all_data(), column_names, condition_column_name, condition_column_value) :
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than_or_equal(
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), column_names, condition_column_name, condition_column_value);
-            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
-        }
-
-        fmt::println("{}", flattened_results);
-
+        print_data_filtered_by_greater_than_or_equal(
+            table_names, column_names, condition_column_name, condition_column_value, false, {});
         return;
     }
 
     if (query_elements.at(where_clause_index + 2) == "<") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
-            auto filtered_data = column_names.size() == 1 && column_names.at(0) == "*" ?
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than(
-                    database.value().tables.find(table_name)->second.get_all_data(), column_names, condition_column_name, condition_column_value) :
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than(
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), column_names, condition_column_name, condition_column_value);
-            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
-        }
-
-        fmt::println("{}", flattened_results);
-
+        print_data_filtered_by_less_than(
+                    table_names, column_names, condition_column_name, condition_column_value, false, {});
         return;
     }
 
     if (query_elements.at(where_clause_index + 2) == "<=") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
-            auto filtered_data = column_names.size() == 1 && column_names.at(0) == "*" ?
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than_or_equal(
-                    database.value().tables.find(table_name)->second.get_all_data(), column_names, condition_column_name, condition_column_value) :
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than_or_equal(
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), column_names, condition_column_name, condition_column_value);
-            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
-        }
-
-        fmt::println("{}", flattened_results);
-
+        print_data_filtered_by_less_than_or_equal(
+            table_names, column_names, condition_column_name, condition_column_value, false, {});
         return;
     }
 
     if (query_elements.at(where_clause_index + 2) == "LIKE") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
-            auto filtered_data = column_names.size() == 1 && column_names.at(0) == "*" ?
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_like(
-                    database.value().tables.find(table_name)->second.get_all_data(), column_names, condition_column_name, condition_column_value) :
-                parser.database.value().get_table_by_name(table_name).get_data_filtered_by_like(
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names), column_names, condition_column_name, condition_column_value);
-            flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
-        }
-
-        fmt::println("{}", flattened_results);
+        print_data_filtered_by_like(
+            table_names, column_names, condition_column_name, condition_column_value, false, {});
     }
 }
 
@@ -843,29 +666,107 @@ auto SelectParser::print_appropriate_columns_with_joins(
     const auto& condition_column_value = query_elements.at(where_clause_index + 3);
 
     if (query_elements.at(where_clause_index + 2) == "=") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
-
-            auto filtered_data = parser.database
-                .value()
-                .get_table_by_name(table_name)
-                .get_data_filtered_by_equality(select_results, column_names, condition_column_name, condition_column_value);
-
-            for (const auto& data : filtered_data) {
-                if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
-            }
-        }
-
-        fmt::println("{}", flattened_results);
-
+        print_data_filtered_by_equality(
+            table_names, column_names, condition_column_name, condition_column_value, true, select_results);
         return;
     }
 
     if (query_elements.at(where_clause_index + 2) == "<>" || query_elements.at(where_clause_index + 2) == "!=") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
+        print_data_filtered_by_inequality(
+            table_names, column_names, condition_column_name, condition_column_value, true, select_results);
+        return;
+    }
 
-            auto filtered_data = parser.database
+    if (query_elements.at(where_clause_index + 2) == ">") {
+        print_data_filtered_by_greater_than(
+            table_names, column_names, condition_column_name, condition_column_value, true, select_results);
+        return;
+    }
+
+    if (query_elements.at(where_clause_index + 2) == ">=") {
+        print_data_filtered_by_greater_than_or_equal(
+            table_names, column_names, condition_column_name, condition_column_value, true, select_results);
+        return;
+    }
+
+    if (query_elements.at(where_clause_index + 2) == "<") {
+        print_data_filtered_by_less_than(
+            table_names, column_names, condition_column_name, condition_column_value, true, select_results);
+        return;
+    }
+
+    if (query_elements.at(where_clause_index + 2) == "<=") {
+        print_data_filtered_by_less_than_or_equal(
+            table_names, column_names, condition_column_name, condition_column_value, true, select_results);
+        return;
+    }
+
+    if (query_elements.at(where_clause_index + 2) == "LIKE") {
+        print_data_filtered_by_like(
+            table_names, column_names, condition_column_name, condition_column_value, true, select_results);
+    }
+}
+
+auto SelectParser::print_data_filtered_by_equality(
+    const std::vector<std::string>& table_names,
+    const std::vector<std::string>& column_names,
+    const std::string& condition_column_name,
+    const std::string& condition_column_value,
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>>& select_results
+) const -> void {
+    const auto database = parser.database;
+    auto flattened_results = std::vector<std::vector<std::string>>{};
+
+    for (auto table_name : table_names) {
+        std::erase(table_name, ',');
+
+        auto filtered_data = std::vector<std::vector<std::string>>{};
+
+        if (is_select_with_join) {
+            filtered_data = parser.database
+                       .value()
+                       .get_table_by_name(table_name)
+                       .get_data_filtered_by_equality(select_results, column_names, condition_column_name, condition_column_value);
+
+            for (const auto& data : filtered_data) {
+                if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
+            }
+
+            continue;
+        }
+
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_equality(
+                column_names.size() == 1 && column_names.at(0) == "*" ?
+                    database.value().tables.find(table_name)->second.get_all_data() :
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+                column_names,
+                condition_column_name,
+                condition_column_value);
+        flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
+    }
+
+    fmt::println("{}", flattened_results);
+}
+
+auto SelectParser::print_data_filtered_by_inequality(
+    const std::vector<std::string> &table_names,
+    const std::vector<std::string> &column_names,
+    const std::string &condition_column_name,
+    const std::string &condition_column_value,
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>> &select_results
+) const -> void {
+    const auto database = parser.database;
+    auto flattened_results = std::vector<std::vector<std::string>>{};
+
+    for (auto table_name : table_names) {
+        std::erase(table_name, ',');
+
+        auto filtered_data = std::vector<std::vector<std::string>>{};
+
+        if (is_select_with_join) {
+            filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
                 .get_data_filtered_by_inequality(select_results, column_names, condition_column_name, condition_column_value);
@@ -873,18 +774,41 @@ auto SelectParser::print_appropriate_columns_with_joins(
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
             }
+
+            continue;
         }
 
-        fmt::println("{}", flattened_results);
-
-        return;
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_inequality(
+                column_names.size() == 1 && column_names.at(0) == "*" ?
+                    database.value().tables.find(table_name)->second.get_all_data() :
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+                column_names,
+                condition_column_name,
+                condition_column_value);
+        flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
-    if (query_elements.at(where_clause_index + 2) == ">") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
+    fmt::println("{}", flattened_results);
+}
 
-            auto filtered_data = parser.database
+auto SelectParser::print_data_filtered_by_greater_than(
+    const std::vector<std::string> &table_names,
+    const std::vector<std::string> &column_names,
+    const std::string &condition_column_name,
+    const std::string &condition_column_value,
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>> &select_results
+) const -> void {
+    const auto database = parser.database;
+    auto flattened_results = std::vector<std::vector<std::string>>{};
+
+    for (auto table_name : table_names) {
+        std::erase(table_name, ',');
+
+        auto filtered_data = std::vector<std::vector<std::string>>{};
+
+        if (is_select_with_join) {
+            filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
                 .get_data_filtered_by_greater_than(select_results, column_names, condition_column_name, condition_column_value);
@@ -892,18 +816,41 @@ auto SelectParser::print_appropriate_columns_with_joins(
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
             }
+
+            continue;
         }
 
-        fmt::println("{}", flattened_results);
-
-        return;
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than(
+                column_names.size() == 1 && column_names.at(0) == "*" ?
+                    database.value().tables.find(table_name)->second.get_all_data() :
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+                column_names,
+                condition_column_name,
+                condition_column_value);
+        flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
-    if (query_elements.at(where_clause_index + 2) == ">=") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
+    fmt::println("{}", flattened_results);
+}
 
-            auto filtered_data = parser.database
+auto SelectParser::print_data_filtered_by_greater_than_or_equal(
+    const std::vector<std::string> &table_names,
+    const std::vector<std::string> &column_names,
+    const std::string &condition_column_name,
+    const std::string &condition_column_value,
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>> &select_results
+) const -> void {
+    const auto database = parser.database;
+    auto flattened_results = std::vector<std::vector<std::string>>{};
+
+    for (auto table_name : table_names) {
+        std::erase(table_name, ',');
+
+        auto filtered_data = std::vector<std::vector<std::string>>{};
+
+        if (is_select_with_join) {
+            filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
                 .get_data_filtered_by_greater_than_or_equal(select_results, column_names, condition_column_name, condition_column_value);
@@ -911,18 +858,41 @@ auto SelectParser::print_appropriate_columns_with_joins(
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
             }
+
+            continue;
         }
 
-        fmt::println("{}", flattened_results);
-
-        return;
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than_or_equal(
+                column_names.size() == 1 && column_names.at(0) == "*" ?
+                    database.value().tables.find(table_name)->second.get_all_data() :
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+                column_names,
+                condition_column_name,
+                condition_column_value);
+        flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
-    if (query_elements.at(where_clause_index + 2) == "<") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
+    fmt::println("{}", flattened_results);
+}
 
-            auto filtered_data = parser.database
+auto SelectParser::print_data_filtered_by_less_than(
+    const std::vector<std::string> &table_names,
+    const std::vector<std::string> &column_names,
+    const std::string &condition_column_name,
+    const std::string &condition_column_value,
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>> &select_results
+) const -> void {
+    const auto database = parser.database;
+    auto flattened_results = std::vector<std::vector<std::string>>{};
+
+    for (auto table_name : table_names) {
+        std::erase(table_name, ',');
+
+        auto filtered_data = std::vector<std::vector<std::string>>{};
+
+        if (is_select_with_join) {
+            filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
                 .get_data_filtered_by_less_than(select_results, column_names, condition_column_name, condition_column_value);
@@ -930,18 +900,41 @@ auto SelectParser::print_appropriate_columns_with_joins(
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
             }
+
+            continue;
         }
 
-        fmt::println("{}", flattened_results);
-
-        return;
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than(
+                column_names.size() == 1 && column_names.at(0) == "*" ?
+                    database.value().tables.find(table_name)->second.get_all_data() :
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+                column_names,
+                condition_column_name,
+                condition_column_value);
+        flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
-    if (query_elements.at(where_clause_index + 2) == "<=") {
-        for (auto& table_name : table_names) {
-            std::erase(table_name, ',');
+    fmt::println("{}", flattened_results);
+}
 
-            auto filtered_data = parser.database
+auto SelectParser::print_data_filtered_by_less_than_or_equal(
+    const std::vector<std::string> &table_names,
+    const std::vector<std::string> &column_names,
+    const std::string &condition_column_name,
+    const std::string &condition_column_value,
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>> &select_results
+) const -> void {
+    const auto database = parser.database;
+    auto flattened_results = std::vector<std::vector<std::string>>{};
+
+    for (auto table_name : table_names) {
+        std::erase(table_name, ',');
+
+        auto filtered_data = std::vector<std::vector<std::string>>{};
+
+        if (is_select_with_join) {
+            filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
                 .get_data_filtered_by_less_than_or_equal(select_results, column_names, condition_column_name, condition_column_value);
@@ -949,28 +942,63 @@ auto SelectParser::print_appropriate_columns_with_joins(
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
             }
+
+            continue;
         }
 
-        fmt::println("{}", flattened_results);
-
-        return;
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than_or_equal(
+                column_names.size() == 1 && column_names.at(0) == "*" ?
+                    database.value().tables.find(table_name)->second.get_all_data() :
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+                column_names,
+                condition_column_name,
+                condition_column_value);
+        flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
-    if (query_elements.at(where_clause_index + 2) == "LIKE") {
-        for (auto& table_name : table_names) {
+    fmt::println("{}", flattened_results);
+}
 
-            auto filtered_data = parser.database
+auto SelectParser::print_data_filtered_by_like(
+    const std::vector<std::string> &table_names,
+    const std::vector<std::string> &column_names,
+    const std::string &condition_column_name,
+    const std::string &condition_column_value,
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>> &select_results
+) const -> void {
+    const auto database = parser.database;
+    auto flattened_results = std::vector<std::vector<std::string>>{};
+
+    for (auto table_name : table_names) {
+        std::erase(table_name, ',');
+
+        auto filtered_data = std::vector<std::vector<std::string>>{};
+
+        if (is_select_with_join) {
+            filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
                 .get_data_filtered_by_like(select_results, column_names, condition_column_name, condition_column_value);
 
             for (const auto& data : filtered_data) {
-                if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data); // Dodajemy tylko, jeśli nie ma duplikatu
+                if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
             }
+
+            continue;
         }
 
-        fmt::println("{}", flattened_results);
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_like(
+                column_names.size() == 1 && column_names.at(0) == "*" ?
+                    database.value().tables.find(table_name)->second.get_all_data() :
+                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+                column_names,
+                condition_column_name,
+                condition_column_value);
+        flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
+
+    fmt::println("{}", flattened_results);
 }
 
 auto SelectParser::find_index(const std::vector<std::string> &vec, const std::string &value) -> int {

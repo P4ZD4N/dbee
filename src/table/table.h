@@ -182,5 +182,21 @@ private:
     ) -> bool;
     static auto validate_value(const std::string& value, const ColumnType& column_type, const std::string& column_name) -> bool;
     static auto find_indices(const std::vector<std::string>& vec, const std::string& value) -> std::vector<int>;
+    auto filter_data(
+        const std::vector<std::vector<std::string>>& data,
+        const std::vector<std::string>& column_names,
+        const std::string& condition_column_name,
+        const std::function<bool(const std::string&, int)>& condition
+    ) -> std::vector<std::vector<std::string>>;
+    auto update_rows_by_condition(
+        const std::string& column_name,
+        const std::string& new_value,
+        const std::string& condition_column_name,
+        const std::function<bool(const std::string&, int)>& condition
+    ) -> void;
+    auto delete_rows_by_condition(
+        const std::string& condition_column_name,
+        const std::function<bool(const std::string&, int)>& condition
+    ) -> void;
 };
 
