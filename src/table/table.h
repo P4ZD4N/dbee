@@ -44,36 +44,43 @@ public:
     ) const -> std::vector<std::vector<std::string>>;
     auto get_data_filtered_by_equality(
         const std::vector<std::vector<std::string>>& data,
+        const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value
     ) -> std::vector<std::vector<std::string>>;
     auto get_data_filtered_by_inequality(
         const std::vector<std::vector<std::string>>& data,
+        const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value
     ) -> std::vector<std::vector<std::string>>;
     auto get_data_filtered_by_greater_than(
         const std::vector<std::vector<std::string>>& data,
+        const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value
     ) -> std::vector<std::vector<std::string>>;
     auto get_data_filtered_by_greater_than_or_equal(
         const std::vector<std::vector<std::string>>& data,
+        const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value
     ) -> std::vector<std::vector<std::string>>;
     auto get_data_filtered_by_less_than(
         const std::vector<std::vector<std::string>>& data,
+        const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value
     ) -> std::vector<std::vector<std::string>>;
     auto get_data_filtered_by_less_than_or_equal(
         const std::vector<std::vector<std::string>>& data,
+        const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value
     ) -> std::vector<std::vector<std::string>>;
     auto get_data_filtered_by_like(
         const std::vector<std::vector<std::string>>& data,
+        const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& pattern
     ) -> std::vector<std::vector<std::string>>;
@@ -152,6 +159,7 @@ public:
         const std::string& condition_column_name,
         const std::string& pattern
     ) -> void;
+private:
     static auto compare_values(
         const std::string& value1,
         const std::string& value2,
@@ -173,5 +181,6 @@ public:
         const std::string& new_value
     ) -> bool;
     static auto validate_value(const std::string& value, const ColumnType& column_type, const std::string& column_name) -> bool;
+    static auto find_indices(const std::vector<std::string>& vec, const std::string& value) -> std::vector<int>;
 };
 

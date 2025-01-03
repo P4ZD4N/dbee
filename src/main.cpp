@@ -16,9 +16,9 @@ int main() {
     parser.parse_query("INSERT INTO users VALUES 2, Mateusz, 76");
     parser.parse_query("INSERT INTO pets VALUES 2, Dog, 1.80");
     parser.parse_query("INSERT INTO pets VALUES 3, Cat, 1.90");
-    parser.parse_query("SELECT users.id, users.name, pets.name, weight, height FROM users FULL JOIN pets ON users.id = pets.id");
-    parser.parse_query("SELECT * FROM users, pets WHERE name LIKE Mat%");
-    parser.parse_query("SELECT id, name, name, id FROM users, pets WHERE name LIKE Mat%");
+    parser.parse_query("SELECT users.name, users.id, pets.name, users.name FROM users FULL JOIN pets ON users.id = pets.id WHERE pets.name = Cat");
+    parser.parse_query("SELECT id, name FROM users, pets WHERE name LIKE Mat%");
+    // parser.parse_query("SELECT id, name, name, id FROM users, pets WHERE name LIKE Mat%");
 
     //users.id, users.name, pets.name, height, weight
     auto query = std::string();
