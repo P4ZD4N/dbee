@@ -244,96 +244,45 @@ auto Table::update_all_rows(const std::string& column_name, const std::string& n
     fmt::println("Successfully updated all rows in table '{}'", name);
 }
 
-auto Table::update_specific_rows_by_equality(
-    const std::string& column_name,
-    const std::string& new_value,
-    const std::string& condition_column_name,
-    const std::string& condition_column_value
+auto Table::update_specific_rows(
+    const std::vector<std::vector<std::string>> &specific_rows,
+    const std::vector<std::vector<std::string>> &columns_and_new_values
 ) -> void {
-    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, int) {
-        return value == condition_column_value;
-    });
+    auto rows_to_update = std::vector<int>{};
 
-    fmt::println("Successfully updated rows where column '{}' equals '{}'", condition_column_name, condition_column_value);
-}
+    for (auto i = 0; i < rows.size(); ++i) {
+        for (const auto& specific_row : specific_rows) {
+            if (rows[i] == specific_row) {
+                rows_to_update.push_back(i);
+                break;
+            }
+        }
+    }
 
-auto Table::update_specific_rows_by_inequality(
-    const std::string& column_name,
-    const std::string& new_value,
-    const std::string& condition_column_name,
-    const std::string& condition_column_value
-) -> void {
-    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, int) {
-        return value != condition_column_value;
-    });
+    for (const auto& column_and_new_value : columns_and_new_values) {
+        const auto& column_name = column_and_new_value.at(0);
+        const auto& new_value = column_and_new_value.at(2);
+        const auto column_index = find_index(column_names, column_name);
 
-    fmt::println("Successfully updated rows where column '{}' not equals '{}'", condition_column_name, condition_column_value);
-}
+        if (column_index == -1) {
+            fmt::println("Column with name '{}' not found in table with name: '{}'", column_name, name);
+            return;
+        }
 
-auto Table::update_specific_rows_by_greater_than(
-    const std::string& column_name,
-    const std::string& new_value,
-    const std::string& condition_column_name,
-    const std::string& condition_column_value
-) -> void {
-    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, const int index) {
-        return compare_values(value, condition_column_value, column_types.at(index)) > 0;
-    });
+        if (!validate_value(new_value, column_types.at(column_index), column_names.at(column_index))) {
+            continue;
+        }
 
-    fmt::println("Successfully updated rows where column '{}' greater than '{}'", condition_column_name, condition_column_value);
-}
+        if (std::ranges::find(column_constraints.at(column_index), Constraint::PRIMARY_KEY) != column_constraints.at(column_index).end() ||
+            std::ranges::find(column_constraints.at(column_index), Constraint::UNIQUE) != column_constraints.at(column_index).end()) {
+            fmt::println("Column with name '{}' has constraints, which protects against this operation!", column_name);
+            continue;
+            }
 
-auto Table::update_specific_rows_by_greater_than_or_equal(
-    const std::string& column_name,
-    const std::string& new_value,
-    const std::string& condition_column_name,
-    const std::string& condition_column_value
-) -> void {
-    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, const int index) {
-        return compare_values(value, condition_column_value, column_types.at(index)) >= 0;
-    });
+        for (const auto& row_index : rows_to_update) rows[row_index][column_index] = new_value;
+    }
 
-    fmt::println("Successfully updated rows where column '{}' greater than or equals '{}'", condition_column_name, condition_column_value);
-}
-
-
-auto Table::update_specific_rows_by_less_than(
-    const std::string& column_name,
-    const std::string& new_value,
-    const std::string& condition_column_name,
-    const std::string& condition_column_value
-) -> void {
-    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, const int index) {
-        return compare_values(value, condition_column_value, column_types.at(index)) < 0;
-    });
-
-    fmt::println("Successfully updated rows where column '{}' less than '{}'", condition_column_name, condition_column_value);
-}
-
-auto Table::update_specific_rows_by_less_than_or_equal(
-    const std::string& column_name,
-    const std::string& new_value,
-    const std::string& condition_column_name,
-    const std::string& condition_column_value
-) -> void {
-    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, const int index) {
-        return compare_values(value, condition_column_value, column_types.at(index)) <= 0;
-    });
-
-    fmt::println("Successfully updated rows where column '{}' less than or equals '{}'", condition_column_name, condition_column_value);
-}
-
-auto Table::update_specific_rows_by_like(
-    const std::string& column_name,
-    const std::string& new_value,
-    const std::string& condition_column_name,
-    const std::string& pattern
-) -> void {
-    update_rows_by_condition(column_name, new_value, condition_column_name, [&](const std::string& value, int) {
-        return matches_pattern(value, pattern);
-    });
-
-    fmt::println("Successfully updated rows where column '{}' matches '{}' pattern", condition_column_name, pattern);
+    fmt::println("Successfully updated specific rows in table '{}'", name);
 }
 
 auto Table::delete_all_rows() -> void {

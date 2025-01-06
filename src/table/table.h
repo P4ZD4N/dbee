@@ -88,47 +88,9 @@ public:
     auto remove_column(const std::string& column_name) -> void;
     static auto find_index(const std::vector<std::string>& vec, const std::string& value) -> int;
     auto update_all_rows(const std::string& column_name, const std::string& new_value) -> void;
-    auto update_specific_rows_by_equality(
-        const std::string& column_name,
-        const std::string& new_value,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value
-    ) -> void;
-    auto update_specific_rows_by_inequality(
-        const std::string& column_name,
-        const std::string& new_value,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value
-    ) -> void;
-    auto update_specific_rows_by_greater_than(
-        const std::string& column_name,
-        const std::string& new_value,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value
-    ) -> void;
-    auto update_specific_rows_by_greater_than_or_equal(
-        const std::string& column_name,
-        const std::string& new_value,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value
-    ) -> void;
-    auto update_specific_rows_by_less_than(
-        const std::string& column_name,
-        const std::string& new_value,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value
-    ) -> void;
-    auto update_specific_rows_by_less_than_or_equal(
-        const std::string& column_name,
-        const std::string& new_value,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value
-    ) -> void;
-    auto update_specific_rows_by_like(
-        const std::string& column_name,
-        const std::string& new_value,
-        const std::string& condition_column_name,
-        const std::string& pattern
+    auto update_specific_rows(
+        const std::vector<std::vector<std::string>>& specific_rows,
+        const std::vector<std::vector<std::string>>& columns_and_new_values
     ) -> void;
     auto delete_all_rows() -> void;
     auto delete_specific_rows_by_equality(
