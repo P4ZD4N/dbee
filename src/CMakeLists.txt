@@ -24,8 +24,8 @@ add_executable(dbee main.cpp
         constraintchecker/constraintchecker.h
         parser/queries/databaseparser.cpp
         parser/queries/databaseparser.h
-        parser/queries/selectparser.cpp
-        parser/queries/selectparser.h
+        parser/queries/select/selectparser.cpp
+        parser/queries/select/selectparser.h
         parser/queries/insertparser.cpp
         parser/queries/insertparser.h
         parser/queries/alterparser.cpp
@@ -37,5 +37,7 @@ add_executable(dbee main.cpp
         parser/queries/deleteparser.cpp
         parser/queries/deleteparser.h
         enums/jointype.h
+        parser/queries/select/whereclauseparser.cpp
+        parser/queries/select/whereclauseparser.h
 )
 target_link_libraries(dbee fmt)

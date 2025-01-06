@@ -10,7 +10,7 @@
 #include "queries/alterparser.h"
 #include "queries/deleteparser.h"
 #include "queries/insertparser.h"
-#include "queries/selectparser.h"
+#include "queries/select/selectparser.h"
 #include "queries/tableparser.h"
 #include "queries/updateparser.h"
 

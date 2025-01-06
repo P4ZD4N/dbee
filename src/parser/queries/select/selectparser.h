@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../parser.h"
-#include "../../enums/jointype.h"
+#include "../../parser.h"
+#include "../../../enums/jointype.h"
 
 struct SelectParser {
 
@@ -70,69 +70,6 @@ private:
         const std::vector<std::string>& query_elements,
         const std::vector<std::string>& column_names
     ) const -> void;
-
-    [[nodiscard]] auto get_data_filtered_by_equality(
-        const std::vector<std::string>& table_names,
-        const std::vector<std::string>& column_names,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
-    ) const -> std::vector<std::vector<std::string>>;
-
-    [[nodiscard]] auto get_data_filtered_by_inequality(
-        const std::vector<std::string>& table_names,
-        const std::vector<std::string>& column_names,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
-    ) const -> std::vector<std::vector<std::string>>;
-
-    [[nodiscard]] auto get_data_filtered_by_greater_than(
-        const std::vector<std::string>& table_names,
-        const std::vector<std::string>& column_names,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
-    ) const -> std::vector<std::vector<std::string>>;
-
-    [[nodiscard]] auto get_data_filtered_by_greater_than_or_equal(
-        const std::vector<std::string>& table_names,
-        const std::vector<std::string>& column_names,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
-    ) const -> std::vector<std::vector<std::string>>;
-
-    [[nodiscard]] auto get_data_filtered_by_less_than(
-        const std::vector<std::string>& table_names,
-        const std::vector<std::string>& column_names,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
-    ) const -> std::vector<std::vector<std::string>>;
-
-    [[nodiscard]] auto get_data_filtered_by_less_than_or_equal(
-        const std::vector<std::string>& table_names,
-        const std::vector<std::string>& column_names,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
-    ) const -> std::vector<std::vector<std::string>>;
-
-    [[nodiscard]] auto get_data_filtered_by_like(
-        const std::vector<std::string>& table_names,
-        const std::vector<std::string>& column_names,
-        const std::string& condition_column_name,
-        const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
-    ) const -> std::vector<std::vector<std::string>>;
 
     static auto find_index(const std::vector<std::string>& vec, const std::string& value) -> int;
 
