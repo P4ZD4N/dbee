@@ -18,7 +18,7 @@ int main() {
     parser.parse_query("INSERT INTO users VALUES 4, Cata, 76");
     parser.parse_query("INSERT INTO pets VALUES 2, Dog, 1.80, 11");
     parser.parse_query("INSERT INTO pets VALUES 3, Cat, 1.90, 5");
-    parser.parse_query("UPDATE users SET name = SIEMA, weight = 90 WHERE id = 3 || name LIKE M%");
+    parser.parse_query("DELETE FROM users WHERE id = 2 && name LIKE M%");
     // parser.parse_query("SELECT * FROM users INNER JOIN pets ON users.id = pets.id");
     // parser.parse_query("SELECT users.id, users.name, pets.id, pets.name FROM users LEFT JOIN pets ON users.id = pets.id WHERE pets.id >= 1 && users.name = Wiktor || pets.name = Cat");
     // parser.parse_query("SELECT * FROM users RIGHT JOIN pets ON users.id = pets.id");
