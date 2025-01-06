@@ -27,23 +27,33 @@ auto Table::get_all_data() const -> std::vector<std::vector<std::string> > {
 
 auto Table::get_all_data_from(const std::vector<std::string>& column_names) const -> std::vector<std::vector<std::string>> {
 
-    for (auto column_name : column_names) {
-        std::erase(column_name, ',');
-        const auto column_index = find_index(this->column_names, column_name);
-
-        if (column_index == -1) {
-            fmt::println("Column with name '{}' not found in table with name: '{}'", column_name, name);
-            return {};
-        }
-    }
-
     auto data = std::vector<std::vector<std::string>>{};
 
     for (auto row : rows) {
         auto data_from_row = std::vector<std::string>{};
         for (auto column_name : column_names) {
             std::erase(column_name, ',');
-            data_from_row.push_back(row.at(find_index(this->column_names, column_name)));
+
+            if (const auto dot_pos = column_name.find('.'); dot_pos != std::string::npos) {
+                const auto [tab, col] = split_string_with_dot(column_name);
+                const auto column_index = find_index(this->column_names, col);
+
+                if (tab != this->name || column_index == -1) {
+                    data_from_row.emplace_back("");
+                    continue;
+                }
+
+                data_from_row.push_back(row.at(column_index));
+                continue;
+            }
+
+            const auto column_index = find_index(this->column_names, column_name);
+            if (column_index == -1) {
+                data_from_row.emplace_back("");
+                continue;
+            }
+
+            data_from_row.push_back(row.at(column_index));
         }
         data.push_back(data_from_row);
     }
@@ -56,7 +66,7 @@ auto Table::get_data_filtered_by_equality(
     const std::vector<std::string>& column_names,
     const std::string& condition_column_name,
     const std::string& condition_column_value
-) -> std::vector<std::vector<std::string>> {
+) const -> std::vector<std::vector<std::string>> {
     const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
         this->column_names :
         column_names;
@@ -71,7 +81,7 @@ auto Table::get_data_filtered_by_inequality(
     const std::vector<std::string>& column_names,
     const std::string& condition_column_name,
     const std::string& condition_column_value
-) -> std::vector<std::vector<std::string>> {
+) const -> std::vector<std::vector<std::string>> {
     const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
         this->column_names :
         column_names;
@@ -86,13 +96,14 @@ auto Table::get_data_filtered_by_greater_than(
     const std::vector<std::string>& column_names,
     const std::string& condition_column_name,
     const std::string& condition_column_value
-) -> std::vector<std::vector<std::string> > {
+) const -> std::vector<std::vector<std::string> > {
     const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
         this->column_names :
         column_names;
 
     return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
-        return compare_values(value, condition_column_value, column_types.at(index)) > 0;
+        if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) > 0;
+        return false;
     });
 }
 
@@ -101,13 +112,14 @@ auto Table::get_data_filtered_by_greater_than_or_equal(
     const std::vector<std::string>& column_names,
     const std::string& condition_column_name,
     const std::string& condition_column_value
-) -> std::vector<std::vector<std::string>> {
+) const -> std::vector<std::vector<std::string>> {
     const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
         this->column_names :
         column_names;
 
     return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
-        return compare_values(value, condition_column_value, column_types.at(index)) >= 0;
+        if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) >= 0;
+        return false;
     });
 }
 
@@ -116,13 +128,14 @@ auto Table::get_data_filtered_by_less_than(
     const std::vector<std::string>& column_names,
     const std::string& condition_column_name,
     const std::string& condition_column_value
-) -> std::vector<std::vector<std::string>> {
+) const -> std::vector<std::vector<std::string>> {
     const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
         this->column_names :
         column_names;
 
     return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
-        return compare_values(value, condition_column_value, column_types.at(index)) < 0;
+        if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) < 0;
+        return false;
     });
 }
 
@@ -131,13 +144,14 @@ auto Table::get_data_filtered_by_less_than_or_equal(
     const std::vector<std::string>& column_names,
     const std::string& condition_column_name,
     const std::string& condition_column_value
-) -> std::vector<std::vector<std::string>> {
+) const -> std::vector<std::vector<std::string>> {
     const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
         this->column_names :
         column_names;
 
     return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
-        return compare_values(value, condition_column_value, column_types.at(index)) <= 0;
+        if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) <= 0;
+        return false;
     });
 }
 
@@ -146,7 +160,7 @@ auto Table::get_data_filtered_by_like(
     const std::vector<std::string>& column_names,
     const std::string& condition_column_name,
     const std::string& pattern
-) -> std::vector<std::vector<std::string>> {
+) const -> std::vector<std::vector<std::string>> {
     const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
         this->column_names :
         column_names;
@@ -412,6 +426,9 @@ auto Table::compare_values(
     const ColumnType& type) -> int {
 
     if (type == ColumnType::INTEGER || type == ColumnType::FLOAT) {
+        if (value1.empty() || value2.empty()) {
+            return 0;
+        }
 
         const double num1 = std::stod(value1);
         const double num2 = std::stod(value2);
@@ -525,7 +542,7 @@ auto Table::validate_value(
     return true;
 }
 
-auto Table::find_indices(const std::vector<std::string>& vec, const std::string& value) -> std::vector<int> {
+auto Table::find_indices(const std::vector<std::string>& vec, const std::string& value) const -> std::vector<int> {
     auto indices = std::vector<int>{};
 
     for (int i = 0; i < vec.size(); ++i) {
@@ -533,13 +550,15 @@ auto Table::find_indices(const std::vector<std::string>& vec, const std::string&
         std::erase(element, ',');
 
         if (const auto dot_pos = value.find('.'); dot_pos != std::string::npos) {
-            if (element == value) indices.push_back(i);
+            if (element.find('.') != std::string::npos && element == value) indices.push_back(i);
+            if (element.find('.') == std::string::npos) {
+                const auto [left, right] = split_string_with_dot(value);
+                if (left == this->name && right == element) indices.push_back(i);
+            }
             continue;
         }
 
-        const auto dot_pos = element.find('.');
-        auto left = element.substr(0, dot_pos);
-        auto right = element.substr(dot_pos + 1);
+        const auto [left, right] = split_string_with_dot(element);
 
         if (right == value) indices.push_back(i);
     }
@@ -552,14 +571,11 @@ auto Table::filter_data(
     const std::vector<std::string> &column_names,
     const std::string &condition_column_name,
     const std::function<bool(const std::string&, int)> &condition
-) -> std::vector<std::vector<std::string>> {
+) const -> std::vector<std::vector<std::string>> {
     auto filtered_data = std::vector<std::vector<std::string>>{};
     const auto condition_column_indices = find_indices(column_names, condition_column_name);
 
-    if (condition_column_indices.empty()) {
-        fmt::println("Column with name '{}' not found in table with name: '{}'", condition_column_name, name);
-        return data;
-    }
+    if (condition_column_indices.empty()) return {};
 
     for (const auto& row : data) {
         for (const auto& index : condition_column_indices) {
@@ -608,4 +624,12 @@ auto Table::delete_rows_by_condition(
             it = rows.erase(it);
         } else ++it;
     }
+}
+
+auto Table::split_string_with_dot(const std::string &str) -> std::pair<std::string, std::string> {
+    const auto dot_pos = str.find('.');
+    auto left = str.substr(0, dot_pos);
+    auto right = str.substr(dot_pos + 1);
+
+    return std::pair{left, right};
 }

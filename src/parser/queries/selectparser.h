@@ -71,68 +71,68 @@ private:
         const std::vector<std::string>& column_names
     ) const -> void;
 
-    auto print_data_filtered_by_equality(
+    [[nodiscard]] auto get_data_filtered_by_equality(
         const std::vector<std::string>& table_names,
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
         bool is_select_with_join,
         const std::vector<std::vector<std::string>>& select_results
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_data_filtered_by_inequality(
+    [[nodiscard]] auto get_data_filtered_by_inequality(
         const std::vector<std::string>& table_names,
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
         bool is_select_with_join,
         const std::vector<std::vector<std::string>>& select_results
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_data_filtered_by_greater_than(
+    [[nodiscard]] auto get_data_filtered_by_greater_than(
         const std::vector<std::string>& table_names,
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
         bool is_select_with_join,
         const std::vector<std::vector<std::string>>& select_results
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_data_filtered_by_greater_than_or_equal(
+    [[nodiscard]] auto get_data_filtered_by_greater_than_or_equal(
         const std::vector<std::string>& table_names,
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
         bool is_select_with_join,
         const std::vector<std::vector<std::string>>& select_results
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_data_filtered_by_less_than(
+    [[nodiscard]] auto get_data_filtered_by_less_than(
         const std::vector<std::string>& table_names,
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
         bool is_select_with_join,
         const std::vector<std::vector<std::string>>& select_results
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_data_filtered_by_less_than_or_equal(
+    [[nodiscard]] auto get_data_filtered_by_less_than_or_equal(
         const std::vector<std::string>& table_names,
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
         bool is_select_with_join,
         const std::vector<std::vector<std::string>>& select_results
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
-    auto print_data_filtered_by_like(
+    [[nodiscard]] auto get_data_filtered_by_like(
         const std::vector<std::string>& table_names,
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
         bool is_select_with_join,
         const std::vector<std::vector<std::string>>& select_results
-    ) const -> void;
+    ) const -> std::vector<std::vector<std::string>>;
 
     static auto find_index(const std::vector<std::string>& vec, const std::string& value) -> int;
 
@@ -149,5 +149,7 @@ private:
     ) const -> bool;
 
     static auto split_string_with_dot(const std::string& str) -> std::pair<std::string, std::string>;
+
+    [[nodiscard]] auto get_column_names_from_both(const std::vector<std::string>& table_names) const -> std::vector<std::string>;
 };
 
