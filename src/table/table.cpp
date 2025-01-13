@@ -61,7 +61,8 @@ auto Table::get_all_data_from(const std::vector<std::string>& column_names) cons
     return data;
 }
 
-auto Table::get_data_filtered_by_equality(
+auto Table::get_data_filtered_by(
+    const std::string& comparison_operator,
     const std::vector<std::vector<std::string>>& data,
     const std::vector<std::string>& column_names,
     const std::string& condition_column_name,
@@ -71,103 +72,52 @@ auto Table::get_data_filtered_by_equality(
         this->column_names :
         column_names;
 
-    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, int) {
-        return value == condition_column_value;
-    });
-}
+    if (comparison_operator == "=")
+        return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, int) {
+            return value == condition_column_value;
+        });
 
-auto Table::get_data_filtered_by_inequality(
-    const std::vector<std::vector<std::string>>& data,
-    const std::vector<std::string>& column_names,
-    const std::string& condition_column_name,
-    const std::string& condition_column_value
-) const -> std::vector<std::vector<std::string>> {
-    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
-        this->column_names :
-        column_names;
+    if (comparison_operator == "!=" || comparison_operator == "<>")
+        return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, int) {
+            return value != condition_column_value;
+        });
 
-    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, int) {
-        return value != condition_column_value;
-    });
-}
+    if (comparison_operator == "!=")
+        return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, int) {
+            return value != condition_column_value;
+        });
 
-auto Table::get_data_filtered_by_greater_than(
-    const std::vector<std::vector<std::string>>& data,
-    const std::vector<std::string>& column_names,
-    const std::string& condition_column_name,
-    const std::string& condition_column_value
-) const -> std::vector<std::vector<std::string> > {
-    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
-        this->column_names :
-        column_names;
+    if (comparison_operator == ">")
+        return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
+            if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) > 0;
+            return false;
+        });
 
-    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
-        if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) > 0;
-        return false;
-    });
-}
+    if (comparison_operator == ">=")
+        return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
+            if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) >= 0;
+            return false;
+        });
 
-auto Table::get_data_filtered_by_greater_than_or_equal(
-    const std::vector<std::vector<std::string>>& data,
-    const std::vector<std::string>& column_names,
-    const std::string& condition_column_name,
-    const std::string& condition_column_value
-) const -> std::vector<std::vector<std::string>> {
-    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
-        this->column_names :
-        column_names;
+    if (comparison_operator == "<")
+        return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
+            if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) < 0;
+            return false;
+        });
 
-    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
-        if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) >= 0;
-        return false;
-    });
-}
+    if (comparison_operator == "<=")
+        return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
+            if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) <= 0;
+            return false;
+        });
 
-auto Table::get_data_filtered_by_less_than(
-    const std::vector<std::vector<std::string>>& data,
-    const std::vector<std::string>& column_names,
-    const std::string& condition_column_name,
-    const std::string& condition_column_value
-) const -> std::vector<std::vector<std::string>> {
-    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
-        this->column_names :
-        column_names;
+    if (comparison_operator == "LIKE")
+        return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, int) {
+            return matches_pattern(value, condition_column_value);
+        });
 
-    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
-        if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) < 0;
-        return false;
-    });
-}
-
-auto Table::get_data_filtered_by_less_than_or_equal(
-    const std::vector<std::vector<std::string>>& data,
-    const std::vector<std::string>& column_names,
-    const std::string& condition_column_name,
-    const std::string& condition_column_value
-) const -> std::vector<std::vector<std::string>> {
-    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
-        this->column_names :
-        column_names;
-
-    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, const int index) {
-        if (column_types.size() - 1 >= index) return compare_values(value, condition_column_value, column_types.at(index)) <= 0;
-        return false;
-    });
-}
-
-auto Table::get_data_filtered_by_like(
-    const std::vector<std::vector<std::string>>& data,
-    const std::vector<std::string>& column_names,
-    const std::string& condition_column_name,
-    const std::string& pattern
-) const -> std::vector<std::vector<std::string>> {
-    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
-        this->column_names :
-        column_names;
-
-    return filter_data(data, effective_column_names, condition_column_name, [&](const std::string& value, int) {
-        return matches_pattern(value, pattern);
-    });
+    fmt::println("Invalid comparison operator: {}", comparison_operator);
+    return {};
 }
 
 auto Table::find_index(const std::vector<std::string> &vec, const std::string &value) -> int {

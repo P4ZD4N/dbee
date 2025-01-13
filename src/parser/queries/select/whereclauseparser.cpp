@@ -22,7 +22,8 @@ auto WhereClauseParser::get_data_filtered_by_equality(
             filtered_data = parser.database
                        .value()
                        .get_table_by_name(table_name)
-                       .get_data_filtered_by_equality(
+                       .get_data_filtered_by(
+                           "=",
                            select_results,
                            column_names.size() == 1 && column_names.at(0) == "*" ? column_names_from_both : column_names,
                            condition_column_name,
@@ -34,13 +35,14 @@ auto WhereClauseParser::get_data_filtered_by_equality(
             continue;
         }
 
-        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_equality(
-                column_names.size() == 1 && column_names.at(0) == "*" ?
-                    database.value().tables.find(table_name)->second.get_all_data() :
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
-                column_names,
-                condition_column_name,
-                condition_column_value);
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            "=",
+            column_names.size() == 1 && column_names.at(0) == "*" ?
+                database.value().tables.find(table_name)->second.get_all_data() :
+                database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+            column_names,
+            condition_column_name,
+            condition_column_value);
         flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
@@ -69,7 +71,8 @@ auto WhereClauseParser::get_data_filtered_by_inequality(
             filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
-                .get_data_filtered_by_inequality(
+                .get_data_filtered_by(
+                    "!=",
                     select_results,
                     column_names.size() == 1 && column_names.at(0) == "*" ? column_names_from_both : column_names,
                     condition_column_name,
@@ -82,13 +85,14 @@ auto WhereClauseParser::get_data_filtered_by_inequality(
             continue;
         }
 
-        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_inequality(
-                column_names.size() == 1 && column_names.at(0) == "*" ?
-                    database.value().tables.find(table_name)->second.get_all_data() :
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
-                column_names,
-                condition_column_name,
-                condition_column_value);
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            "!=",
+            column_names.size() == 1 && column_names.at(0) == "*" ?
+                database.value().tables.find(table_name)->second.get_all_data() :
+                database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+            column_names,
+            condition_column_name,
+            condition_column_value);
         flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
@@ -117,7 +121,8 @@ auto WhereClauseParser::get_data_filtered_by_greater_than(
             filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
-                .get_data_filtered_by_greater_than(
+                .get_data_filtered_by(
+                    ">",
                     select_results,
                     column_names.size() == 1 && column_names.at(0) == "*" ? column_names_from_both : column_names,
                     condition_column_name,
@@ -130,13 +135,14 @@ auto WhereClauseParser::get_data_filtered_by_greater_than(
             continue;
         }
 
-        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than(
-                column_names.size() == 1 && column_names.at(0) == "*" ?
-                    database.value().tables.find(table_name)->second.get_all_data() :
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
-                column_names,
-                condition_column_name,
-                condition_column_value);
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            ">",
+            column_names.size() == 1 && column_names.at(0) == "*" ?
+                database.value().tables.find(table_name)->second.get_all_data() :
+                database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+            column_names,
+            condition_column_name,
+            condition_column_value);
         flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
@@ -165,7 +171,8 @@ auto WhereClauseParser::get_data_filtered_by_greater_than_or_equal(
             filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
-                .get_data_filtered_by_greater_than_or_equal(
+                .get_data_filtered_by(
+                    ">=",
                     select_results,
                     column_names.size() == 1 && column_names.at(0) == "*" ? column_names_from_both : column_names,
                     condition_column_name,
@@ -178,13 +185,14 @@ auto WhereClauseParser::get_data_filtered_by_greater_than_or_equal(
             continue;
         }
 
-        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_greater_than_or_equal(
-                column_names.size() == 1 && column_names.at(0) == "*" ?
-                    database.value().tables.find(table_name)->second.get_all_data() :
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
-                column_names,
-                condition_column_name,
-                condition_column_value);
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            ">=",
+            column_names.size() == 1 && column_names.at(0) == "*" ?
+                database.value().tables.find(table_name)->second.get_all_data() :
+                database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+            column_names,
+            condition_column_name,
+            condition_column_value);
         flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
@@ -213,7 +221,8 @@ auto WhereClauseParser::get_data_filtered_by_less_than(
             filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
-                .get_data_filtered_by_less_than(
+                .get_data_filtered_by(
+                    "<",
                     select_results,
                     column_names.size() == 1 && column_names.at(0) == "*" ? column_names_from_both : column_names,
                     condition_column_name,
@@ -226,13 +235,14 @@ auto WhereClauseParser::get_data_filtered_by_less_than(
             continue;
         }
 
-        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than(
-                column_names.size() == 1 && column_names.at(0) == "*" ?
-                    database.value().tables.find(table_name)->second.get_all_data() :
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
-                column_names,
-                condition_column_name,
-                condition_column_value);
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            "<",
+            column_names.size() == 1 && column_names.at(0) == "*" ?
+                database.value().tables.find(table_name)->second.get_all_data() :
+                database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+            column_names,
+            condition_column_name,
+            condition_column_value);
         flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
@@ -261,7 +271,8 @@ auto WhereClauseParser::get_data_filtered_by_less_than_or_equal(
             filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
-                .get_data_filtered_by_less_than_or_equal(
+                .get_data_filtered_by(
+                    "<=",
                     select_results,
                     column_names.size() == 1 && column_names.at(0) == "*" ? column_names_from_both : column_names,
                     condition_column_name,
@@ -274,13 +285,14 @@ auto WhereClauseParser::get_data_filtered_by_less_than_or_equal(
             continue;
         }
 
-        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_less_than_or_equal(
-                column_names.size() == 1 && column_names.at(0) == "*" ?
-                    database.value().tables.find(table_name)->second.get_all_data() :
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
-                column_names,
-                condition_column_name,
-                condition_column_value);
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            "<=",
+            column_names.size() == 1 && column_names.at(0) == "*" ?
+                database.value().tables.find(table_name)->second.get_all_data() :
+                database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+            column_names,
+            condition_column_name,
+            condition_column_value);
         flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
@@ -309,7 +321,8 @@ auto WhereClauseParser::get_data_filtered_by_like(
             filtered_data = parser.database
                 .value()
                 .get_table_by_name(table_name)
-                .get_data_filtered_by_like(
+                .get_data_filtered_by(
+                    "LIKE",
                     select_results,
                     column_names.size() == 1 && column_names.at(0) == "*" ? column_names_from_both : column_names,
                     condition_column_name,
@@ -322,13 +335,14 @@ auto WhereClauseParser::get_data_filtered_by_like(
             continue;
         }
 
-        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by_like(
-                column_names.size() == 1 && column_names.at(0) == "*" ?
-                    database.value().tables.find(table_name)->second.get_all_data() :
-                    database.value().tables.find(table_name)->second.get_all_data_from(column_names),
-                column_names,
-                condition_column_name,
-                condition_column_value);
+        filtered_data = parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            "LIKE",
+            column_names.size() == 1 && column_names.at(0) == "*" ?
+                database.value().tables.find(table_name)->second.get_all_data() :
+                database.value().tables.find(table_name)->second.get_all_data_from(column_names),
+            column_names,
+            condition_column_name,
+            condition_column_value);
         flattened_results.insert(flattened_results.end(), filtered_data.begin(), filtered_data.end());
     }
 
