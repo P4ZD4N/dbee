@@ -25,13 +25,17 @@ auto Table::get_all_data() const -> std::vector<std::vector<std::string> > {
     return rows;
 }
 
-auto Table::get_all_data_from(const std::vector<std::string>& column_names) const -> std::vector<std::vector<std::string>> {
+auto Table::get_all_data_from(const std::vector<std::string>& column_names, const std::vector<std::vector<std::string>>& rows) const -> std::vector<std::vector<std::string>> {
+
+    const auto& effective_column_names = column_names.size() == 1 && column_names.at(0) == "*" ?
+        this->column_names :
+        column_names;
 
     auto data = std::vector<std::vector<std::string>>{};
 
     for (auto row : rows) {
         auto data_from_row = std::vector<std::string>{};
-        for (auto column_name : column_names) {
+        for (auto column_name : effective_column_names) {
             std::erase(column_name, ',');
 
             if (const auto dot_pos = column_name.find('.'); dot_pos != std::string::npos) {

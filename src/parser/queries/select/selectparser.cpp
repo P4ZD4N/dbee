@@ -565,7 +565,8 @@ auto SelectParser::print_appropriate_columns_without_joins(
             std::erase(table_name, ',');
             auto data_from_table = column_names.size() == 1 && column_names.at(0) == "*" ?
                 database.value().tables.find(table_name)->second.get_all_data() :
-                database.value().tables.find(table_name)->second.get_all_data_from(column_names);
+                database.value().tables.find(table_name)->second.get_all_data_from(
+                    column_names, database.value().tables.find(table_name)->second.get_all_data());
             flattened_results.insert(flattened_results.end(), data_from_table.begin(), data_from_table.end());
         }
 
@@ -583,43 +584,43 @@ auto SelectParser::print_appropriate_columns_without_joins(
         if (comparison_operator == "=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_equality(
-                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
+                    table_names, column_names, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == "<>" || comparison_operator == "!=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_inequality(
-                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
+                    table_names, column_names, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == ">") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than(
-                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
+                    table_names, column_names, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == ">=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than_or_equal(
-                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
+                    table_names, column_names, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == "<") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than(
-                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
+                    table_names, column_names, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == "<=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than_or_equal(
-                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
+                    table_names, column_names, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == "LIKE") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_like(
-                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
+                    table_names, column_names, condition_column_name, condition_column_value, false));
         }
 
         if (it + 3 < query_elements.end()) results_and_comparison_operators.push_back({{*(it + 3)}});
@@ -628,7 +629,15 @@ auto SelectParser::print_appropriate_columns_without_joins(
     auto results = std::vector<std::vector<std::string>>{};
     auto current_comparison_operator = std::string("");
     for (auto part : results_and_comparison_operators) {
-        if (part.empty()) continue;
+
+        if (part.empty() && (current_comparison_operator == "&&" || current_comparison_operator == "AND")) {
+            results.clear();
+            current_comparison_operator.clear();
+            continue;
+        }
+
+        if (part.empty() && (current_comparison_operator == "||" || current_comparison_operator == "OR")) continue;
+
         if (part.at(0).size() == 1 && (
                 part.at(0).at(0) == "&&" ||
                 part.at(0).at(0) == "||" ||
@@ -724,43 +733,43 @@ auto SelectParser::print_appropriate_columns_with_joins(
         if (comparison_operator == "=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_equality(
-                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
+                    table_names, column_names, condition_column_name, condition_column_value, true));
         }
 
         if (comparison_operator == "<>" || comparison_operator == "!=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_inequality(
-                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
+                    table_names, column_names, condition_column_name, condition_column_value, true));
         }
 
         if (comparison_operator == ">") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than(
-                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
+                    table_names, column_names, condition_column_name, condition_column_value, true));
         }
 
         if (comparison_operator == ">=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than_or_equal(
-                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
+                    table_names, column_names, condition_column_name, condition_column_value, true));
         }
 
         if (comparison_operator == "<") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than(
-                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
+                    table_names, column_names, condition_column_name, condition_column_value, true));
         }
 
         if (comparison_operator == "<=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than_or_equal(
-                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
+                    table_names, column_names, condition_column_name, condition_column_value, true));
         }
 
         if (comparison_operator == "LIKE") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_like(
-                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
+                    table_names, column_names, condition_column_name, condition_column_value, true));
         }
 
         if (it + 3 < query_elements.end()) results_and_comparison_operators.push_back({{*(it + 3)}});
@@ -769,7 +778,15 @@ auto SelectParser::print_appropriate_columns_with_joins(
     auto results = std::vector<std::vector<std::string>>{};
     auto current_comparison_operator = std::string("");
     for (auto part : results_and_comparison_operators) {
-        if (part.empty()) continue;
+
+        if (part.empty() && (current_comparison_operator == "&&" || current_comparison_operator == "AND")) {
+            results.clear();
+            current_comparison_operator.clear();
+            continue;
+        }
+
+        if (part.empty() && (current_comparison_operator == "||" || current_comparison_operator == "OR")) continue;
+
         if (part.at(0).size() == 1 && (
                 part.at(0).at(0) == "&&" ||
                 part.at(0).at(0) == "||" ||

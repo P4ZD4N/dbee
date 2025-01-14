@@ -42,7 +42,8 @@ public:
     [[nodiscard]] auto get_all_data() const -> std::vector<std::vector<std::string>>;
 
     [[nodiscard]] auto get_all_data_from(
-        const std::vector<std::string>& column_names
+        const std::vector<std::string>& column_names,
+        const std::vector<std::vector<std::string>>& rows
     ) const -> std::vector<std::vector<std::string>>;
 
     [[nodiscard]] auto get_data_filtered_by(

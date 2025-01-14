@@ -16,8 +16,7 @@ struct WhereClauseParser {
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
+        bool is_select_with_join
     ) const -> std::vector<std::vector<std::string>>;
 
     [[nodiscard]] auto get_data_filtered_by_inequality(
@@ -25,8 +24,7 @@ struct WhereClauseParser {
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
+        bool is_select_with_join
     ) const -> std::vector<std::vector<std::string>>;
 
     [[nodiscard]] auto get_data_filtered_by_greater_than(
@@ -34,8 +32,7 @@ struct WhereClauseParser {
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
+        bool is_select_with_join
     ) const -> std::vector<std::vector<std::string>>;
 
     [[nodiscard]] auto get_data_filtered_by_greater_than_or_equal(
@@ -43,8 +40,7 @@ struct WhereClauseParser {
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
+        bool is_select_with_join
     ) const -> std::vector<std::vector<std::string>>;
 
     [[nodiscard]] auto get_data_filtered_by_less_than(
@@ -52,8 +48,7 @@ struct WhereClauseParser {
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
+        bool is_select_with_join
     ) const -> std::vector<std::vector<std::string>>;
 
     [[nodiscard]] auto get_data_filtered_by_less_than_or_equal(
@@ -61,8 +56,7 @@ struct WhereClauseParser {
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
+        bool is_select_with_join
     ) const -> std::vector<std::vector<std::string>>;
 
     [[nodiscard]] auto get_data_filtered_by_like(
@@ -70,8 +64,7 @@ struct WhereClauseParser {
         const std::vector<std::string>& column_names,
         const std::string& condition_column_name,
         const std::string& condition_column_value,
-        bool is_select_with_join,
-        const std::vector<std::vector<std::string>>& select_results
+        bool is_select_with_join
     ) const -> std::vector<std::vector<std::string>>;
 
 private:
