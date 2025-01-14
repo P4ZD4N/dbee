@@ -49,43 +49,43 @@ auto UpdateParser::parse_update_query(const std::vector<std::string> &query_elem
         if (comparison_operator == "=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_equality(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == "<>" || comparison_operator == "!=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_inequality(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == ">") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == ">=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than_or_equal(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == "<") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == "<=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than_or_equal(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
         }
 
         if (comparison_operator == "LIKE") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_like(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
         }
 
         if (it + 3 < query_elements.end()) results_and_comparison_operators.push_back({{*(it + 3)}});
@@ -94,7 +94,15 @@ auto UpdateParser::parse_update_query(const std::vector<std::string> &query_elem
     auto results = std::vector<std::vector<std::string>>{};
     auto current_comparison_operator = std::string("");
     for (auto part : results_and_comparison_operators) {
-        if (part.empty()) continue;
+
+        if (part.empty() && (current_comparison_operator == "&&" || current_comparison_operator == "AND")) {
+            results.clear();
+            current_comparison_operator.clear();
+            continue;
+        }
+
+        if (part.empty() && (current_comparison_operator == "||" || current_comparison_operator == "OR")) continue;
+
         if (part.at(0).size() == 1 && (
                 part.at(0).at(0) == "&&" ||
                 part.at(0).at(0) == "||" ||
