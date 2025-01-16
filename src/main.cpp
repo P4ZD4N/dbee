@@ -19,13 +19,14 @@ int main() {
     parser.parse_query("INSERT INTO pets VALUES 2, Dog, 1.80, 11");
     parser.parse_query("INSERT INTO pets VALUES 3, Cat, 1.90, 5");
     // parser.parse_query("DELETE FROM users WHERE id = 2 && name LIKE M%");
+    // parser.parse_query("UPDATE users SET name = Wiktor, weight = 90 WHERE name LIKE D% && id = 1");
     // parser.parse_query("SELECT * FROM users INNER JOIN pets ON users.id = pets.id");
     // parser.parse_query("SELECT users.id, users.name, pets.id, pets.name FROM users LEFT JOIN pets ON users.id = pets.id WHERE pets.id >= 1 && users.name = Wiktor || pets.name = Cat");
     // parser.parse_query("SELECT * FROM users RIGHT JOIN pets ON users.id = pets.id");
     // parser.parse_query("SELECT * FROM users FULL JOIN pets ON users.id = pets.id WHERE id = 1 || id = 3 && name LIKE Z% || pets.id = 2");
-    // parser.parse_query("SELECT * FROM users, pets");
+    parser.parse_query("SELECT * FROM users, pets");
     // WHERE id > 1 && name LIKE M%
-    parser.parse_query("SELECT id, name, weight FROM users, pets WHERE id != 1 && name != Dog || id = 1");
+    // parser.parse_query("SELECT id, name, weight FROM users, pets WHERE id != 1 && name != Dog || id = 1");
 
     //users.id, users.name, pets.name, height, weight
     auto query = std::string();

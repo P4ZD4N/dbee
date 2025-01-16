@@ -39,5 +39,7 @@ add_executable(dbee main.cpp
         enums/jointype.h
         parser/queries/select/whereclauseparser.cpp
         parser/queries/select/whereclauseparser.h
+        serializer/serializer.cpp
+        serializer/serializer.h
 )
 target_link_libraries(dbee fmt)
