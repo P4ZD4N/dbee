@@ -9,11 +9,11 @@
 class Parser {
 
 public:
-    std::optional<Database> database;
+    Database* database = nullptr;
 
     Parser() = default;
 
-    explicit Parser(const Database& database) : database(database) {}
+    explicit Parser(Database* database) : database(database) {}
 
     auto parse_query(const std::string& query) -> void;
     [[nodiscard]] auto is_database_selected() const -> bool;

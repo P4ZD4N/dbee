@@ -21,13 +21,13 @@ auto AlterParser::parse_alter_query(const std::vector<std::string> &query_elemen
             const auto new_column_constraints = std::vector(
                 query_elements.begin() + column_clause_index + 3, query_elements.end());
 
-            parser.database.value().get_table_by_name(table_name).add_column(
+            parser.database->get_table_by_name(table_name).add_column(
                 new_column_name,
                 string_to_column_type(new_column_type),
                 strings_to_constraints(new_column_constraints));
         } else if (query_elements.at(operation_clause_index) == "DROP") {
             const auto& column_to_remove_name = query_elements.at(column_clause_index + 1);
-            parser.database.value().get_table_by_name(table_name).remove_column(column_to_remove_name);
+            parser.database->get_table_by_name(table_name).remove_column(column_to_remove_name);
         } else fmt::println("Query with ALTER clause should contain operation clause before COLUMN clause!");
     } else fmt::println("Query with ALTER clause should contain TABLE clause!");
 }

@@ -33,7 +33,7 @@ auto TableParser::parse_table_query(const std::vector<std::string> &query_elemen
 
                         if (!is_foreign_key_valid(foreign_table_name, foreign_column_name, column_type)) return;
 
-                        auto& foreign_table = parser.database.value().get_table_by_name(foreign_table_name);
+                        auto& foreign_table = parser.database->get_table_by_name(foreign_table_name);
                         column_foreign_keys.emplace_back(&foreign_table, foreign_column_name);
                     } else column_foreign_keys.emplace_back(nullptr, "");
 
@@ -57,7 +57,7 @@ auto TableParser::parse_table_query(const std::vector<std::string> &query_elemen
                     column_constraints.push_back(strings_to_constraints(constraints));
                 }
 
-                parser.database.value().create_table(
+                parser.database->create_table(
                     table_name,
                     column_names,
                     strings_to_column_types(column_types),
@@ -67,7 +67,7 @@ auto TableParser::parse_table_query(const std::vector<std::string> &query_elemen
         } else if (query_elements.at(1) == "DROP") {
             const auto& table_to_drop_name = query_elements.at(2);
 
-            for (const auto& [table_from_db_name, table_from_db] : parser.database.value().tables) {
+            for (const auto& [table_from_db_name, table_from_db] : parser.database->tables) {
                 for (const auto& table_from_foreign_key : table_from_db.column_foreign_keys) {
                     if (table_from_foreign_key.first != nullptr && table_from_foreign_key.first->name == table_to_drop_name) {
                         fmt::println("Can't drop table '{}' because it contains column, which is foreign key of different column!", table_to_drop_name);
@@ -76,7 +76,7 @@ auto TableParser::parse_table_query(const std::vector<std::string> &query_elemen
                 }
             }
 
-            parser.database.value().drop_table(table_to_drop_name);
+            parser.database->drop_table(table_to_drop_name);
         } else fmt::println("Query with TABLE clause should contain correct operation clause after TABLE clause!");
 }
 
@@ -93,12 +93,12 @@ auto TableParser::is_foreign_key_valid(
     const std::string& foreign_column_name,
     const std::string& column_type
 ) const -> bool {
-    if (!parser.database.value().tables.contains(foreign_table_name)) {
+    if (!parser.database->tables.contains(foreign_table_name)) {
         fmt::println("Enter valid table name in a foreign key!");
         return false;
     }
 
-    const auto foreign_table = parser.database.value().tables.at(foreign_table_name);
+    const auto foreign_table = parser.database->tables.at(foreign_table_name);
     const auto column_found_in_foreign_table = std::ranges::find(foreign_table.column_names, foreign_column_name);
 
     if (column_found_in_foreign_table == foreign_table.column_names.end()) {
@@ -106,15 +106,15 @@ auto TableParser::is_foreign_key_valid(
         return false;
     }
 
-    const auto column_found_index = Table::find_index(parser.database.value().tables.at(foreign_table_name).column_names, foreign_column_name);
-    const auto column_found_type = parser.database.value().tables.at(foreign_table_name).column_types.at(column_found_index);
+    const auto column_found_index = Table::find_index(parser.database->tables.at(foreign_table_name).column_names, foreign_column_name);
+    const auto column_found_type = parser.database->tables.at(foreign_table_name).column_types.at(column_found_index);
 
     if (column_found_type != string_to_column_type(column_type)) {
         fmt::println("Enter valid column type, which match foreign column type in a foreign key!");
         return false;
     }
 
-    const auto column_found_constraints = parser.database.value().tables.at(foreign_table_name).column_constraints.at(column_found_index);
+    const auto column_found_constraints = parser.database->tables.at(foreign_table_name).column_constraints.at(column_found_index);
 
     if (std::ranges::find(column_found_constraints, Constraint::PRIMARY_KEY) == column_found_constraints.end() &&
         std::ranges::find(column_found_constraints, Constraint::UNIQUE) == column_found_constraints.end()) {

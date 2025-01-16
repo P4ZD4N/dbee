@@ -34,7 +34,7 @@ auto UpdateParser::parse_update_query(const std::vector<std::string> &query_elem
 
     if (where_clause_index == -1) {
         for (auto column_and_new_value : columns_and_new_values) {
-            parser.database.value().get_table_by_name(table_name).update_all_rows(
+            parser.database->get_table_by_name(table_name).update_all_rows(
                 column_and_new_value.at(0), column_and_new_value.at(2));
         }
         return;
@@ -137,7 +137,7 @@ auto UpdateParser::parse_update_query(const std::vector<std::string> &query_elem
         current_comparison_operator.clear();
     }
 
-    parser.database.value().get_table_by_name(table_name).update_specific_rows(results, columns_and_new_values);
+    parser.database->get_table_by_name(table_name).update_specific_rows(results, columns_and_new_values);
 }
 
 auto UpdateParser::find_index(const std::vector<std::string> &vec, const std::string &value) -> int {

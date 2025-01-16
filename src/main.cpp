@@ -27,6 +27,7 @@ int main() {
     parser.parse_query("SELECT * FROM users, pets");
     // WHERE id > 1 && name LIKE M%
     // parser.parse_query("SELECT id, name, weight FROM users, pets WHERE id != 1 && name != Dog || id = 1");
+    parser.parse_query("SAVE");
 
     //users.id, users.name, pets.name, height, weight
     auto query = std::string();

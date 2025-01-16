@@ -6,7 +6,7 @@
 
 #include <vector>
 
-std::unordered_map<std::string, Database> Database::databases;
+std::unordered_map<std::string, Database*> Database::databases;
 
 auto Database::create_table(
     const std::string& name,
@@ -68,16 +68,15 @@ auto Database::create_database(const std::string& database_name) -> void {
         return;
     }
 
-    auto new_db = Database(database_name);
+    auto new_db = new Database(database_name);
     databases.insert({database_name, new_db});
 }
 
-auto Database::get_database(const std::string& database_name) -> Database& {
+auto Database::get_database(const std::string& database_name) -> Database* {
 
     if (!databases.contains(database_name)) {
         fmt::println("Database with name '{}' does not exist!", database_name);
-        static auto empty_db = Database();
-        return empty_db;
+        return nullptr;
     }
 
     return databases.at(database_name);
@@ -90,6 +89,7 @@ auto Database::drop_database(const std::string &database_name) -> void {
         return;
     }
 
+    delete databases.at(database_name);
     databases.erase(database_name);
 
     fmt::println("Successfully dropped database with name: '{}'", database_name);

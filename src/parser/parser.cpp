@@ -45,7 +45,7 @@ auto Parser::parse_query(const std::string& query) -> void {
 }
 
 auto Parser::is_database_selected() const -> bool {
-    if (!database.has_value()) {
+    if (database == nullptr) {
         fmt::println("No database selected. Please select it with 'DATABASE USE [...]'!");
         return false;
     }

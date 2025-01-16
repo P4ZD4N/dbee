@@ -71,8 +71,8 @@ auto SelectParser::get_specific_columns_for_inner_join(
     const auto [left_table_name, left_column_name] = split_string_with_dot(left);
     const auto [right_table_name, right_column_name] = split_string_with_dot(right);
 
-    auto left_table = parser.database.value().tables.find(left_table_name)->second;
-    auto right_table = parser.database.value().tables.find(right_table_name)->second;
+    auto left_table = parser.database->tables.find(left_table_name)->second;
+    auto right_table = parser.database->tables.find(right_table_name)->second;
 
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
@@ -146,8 +146,8 @@ auto SelectParser::get_specific_columns_for_left_join(
     const auto [left_table_name, left_column_name] = split_string_with_dot(left);
     const auto [right_table_name, right_column_name] = split_string_with_dot(right);
 
-    auto left_table = parser.database.value().tables.find(left_table_name)->second;
-    auto right_table = parser.database.value().tables.find(right_table_name)->second;
+    auto left_table = parser.database->tables.find(left_table_name)->second;
+    auto right_table = parser.database->tables.find(right_table_name)->second;
 
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
@@ -251,8 +251,8 @@ auto SelectParser::get_specific_columns_for_right_join(
     const auto [left_table_name, left_column_name] = split_string_with_dot(left);
     const auto [right_table_name, right_column_name] = split_string_with_dot(right);
 
-    auto left_table = parser.database.value().tables.find(left_table_name)->second;
-    auto right_table = parser.database.value().tables.find(right_table_name)->second;
+    auto left_table = parser.database->tables.find(left_table_name)->second;
+    auto right_table = parser.database->tables.find(right_table_name)->second;
 
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
@@ -358,8 +358,8 @@ auto SelectParser::get_specific_columns_for_full_join(
     const auto [left_table_name, left_column_name] = split_string_with_dot(left);
     const auto [right_table_name, right_column_name] = split_string_with_dot(right);
 
-    auto left_table = parser.database.value().tables.find(left_table_name)->second;
-    auto right_table = parser.database.value().tables.find(right_table_name)->second;
+    auto left_table = parser.database->tables.find(left_table_name)->second;
+    auto right_table = parser.database->tables.find(right_table_name)->second;
 
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
@@ -490,8 +490,8 @@ auto SelectParser::get_all_columns_for_join(
     const auto [left_table_name, left_column_name] = split_string_with_dot(left);
     const auto [right_table_name, right_column_name] = split_string_with_dot(right);
 
-    auto left_table = parser.database.value().tables.find(left_table_name)->second;
-    auto right_table = parser.database.value().tables.find(right_table_name)->second;
+    auto left_table = parser.database->tables.find(left_table_name)->second;
+    auto right_table = parser.database->tables.find(right_table_name)->second;
 
     const auto left_column_id = Table::find_index(left_table.column_names, left_column_name);
     const auto right_column_id = Table::find_index(right_table.column_names, right_column_name);
@@ -564,9 +564,9 @@ auto SelectParser::print_appropriate_columns_without_joins(
         for (auto table_name : table_names) {
             std::erase(table_name, ',');
             auto data_from_table = column_names.size() == 1 && column_names.at(0) == "*" ?
-                database.value().tables.find(table_name)->second.get_all_data() :
-                database.value().tables.find(table_name)->second.get_all_data_from(
-                    column_names, database.value().tables.find(table_name)->second.get_all_data());
+                database->tables.find(table_name)->second.get_all_data() :
+                database->tables.find(table_name)->second.get_all_data_from(
+                    column_names, database->tables.find(table_name)->second.get_all_data());
             flattened_results.insert(flattened_results.end(), data_from_table.begin(), data_from_table.end());
         }
 
@@ -846,13 +846,13 @@ auto SelectParser::validate_tables_and_columns(
     const auto [left_table_name, left_column_name] = split_string_with_dot(left);
     const auto [right_table_name, right_column_name] = split_string_with_dot(right);
 
-    if (!parser.database.value().tables.contains(left_table_name)) {
-        fmt::println("Table with name '{}' not exists in database '{}'!", left_table_name, parser.database.value().name);
+    if (!parser.database->tables.contains(left_table_name)) {
+        fmt::println("Table with name '{}' not exists in database '{}'!", left_table_name, parser.database->name);
         return false;
     }
 
-    if (!parser.database.value().tables.contains(right_table_name)) {
-        fmt::println("Table with name '{}' not exists in database '{}'!", right_table_name, parser.database.value().name);
+    if (!parser.database->tables.contains(right_table_name)) {
+        fmt::println("Table with name '{}' not exists in database '{}'!", right_table_name, parser.database->name);
     }
 
     if (left_table_name != query_elements.at(from_clause_index + 1)) {
@@ -865,8 +865,8 @@ auto SelectParser::validate_tables_and_columns(
         return false;
     }
 
-    auto left_table = parser.database.value().tables.find(left_table_name)->second;
-    auto right_table = parser.database.value().tables.find(right_table_name)->second;
+    auto left_table = parser.database->tables.find(left_table_name)->second;
+    auto right_table = parser.database->tables.find(right_table_name)->second;
 
     if (std::ranges::find(left_table.column_names, left_column_name) == left_table.column_names.end()) {
         fmt::println("'{}' column not exists in table '{}'!", left_column_name, left_table_name);

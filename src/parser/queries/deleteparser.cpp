@@ -17,7 +17,7 @@ auto DeleteParser::parse_delete_query(const std::vector<std::string> &query_elem
     const auto& table_name = query_elements.at(2);
 
     if (where_clause_index == -1) {
-        parser.database.value().get_table_by_name(table_name).delete_all_rows();
+        parser.database->get_table_by_name(table_name).delete_all_rows();
         return;
     }
 
@@ -123,7 +123,7 @@ auto DeleteParser::parse_delete_query(const std::vector<std::string> &query_elem
         current_comparison_operator.clear();
     }
 
-    parser.database.value().get_table_by_name(table_name).delete_specific_rows(results);
+    parser.database->get_table_by_name(table_name).delete_specific_rows(results);
 }
 
 auto DeleteParser::find_index(const std::vector<std::string> &vec, const std::string &value) -> int {

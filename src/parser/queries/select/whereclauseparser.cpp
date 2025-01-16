@@ -20,11 +20,11 @@ auto WhereClauseParser::get_data_filtered_by_equality(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     "=",
-                    database.value().tables.find(table_name)->second.get_all_data(),
-                    database.value().tables.find(table_name)->second.column_names,
+                    database->tables.find(table_name)->second.get_all_data(),
+                    database->tables.find(table_name)->second.column_names,
                     condition_column_name,
                     condition_column_value)
             );
@@ -35,11 +35,11 @@ auto WhereClauseParser::get_data_filtered_by_equality(
             continue;
         }
 
-        filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-            column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+        filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+            column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                 "=",
-                database.value().tables.find(table_name)->second.get_all_data(),
-                database.value().tables.find(table_name)->second.column_names,
+                database->tables.find(table_name)->second.get_all_data(),
+                database->tables.find(table_name)->second.column_names,
                 condition_column_name,
                 condition_column_value)
         );
@@ -69,10 +69,10 @@ auto WhereClauseParser::get_data_filtered_by_inequality(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     "!=",
-                    database.value().tables.find(table_name)->second.get_all_data(),
+                    database->tables.find(table_name)->second.get_all_data(),
                     column_names,
                     condition_column_name,
                     condition_column_value)
@@ -85,10 +85,10 @@ auto WhereClauseParser::get_data_filtered_by_inequality(
             continue;
         }
 
-        filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-            column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+        filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+            column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                 "!=",
-                database.value().tables.find(table_name)->second.get_all_data(),
+                database->tables.find(table_name)->second.get_all_data(),
                 column_names,
                 condition_column_name,
                 condition_column_value)
@@ -119,10 +119,10 @@ auto WhereClauseParser::get_data_filtered_by_greater_than(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     ">",
-                    database.value().tables.find(table_name)->second.get_all_data(),
+                    database->tables.find(table_name)->second.get_all_data(),
                     column_names,
                     condition_column_name,
                     condition_column_value)
@@ -135,10 +135,10 @@ auto WhereClauseParser::get_data_filtered_by_greater_than(
             continue;
         }
 
-        filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-            column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+        filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+            column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                 ">",
-                database.value().tables.find(table_name)->second.get_all_data(),
+                database->tables.find(table_name)->second.get_all_data(),
                 column_names,
                 condition_column_name,
                 condition_column_value)
@@ -169,10 +169,10 @@ auto WhereClauseParser::get_data_filtered_by_greater_than_or_equal(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     ">=",
-                    database.value().tables.find(table_name)->second.get_all_data(),
+                    database->tables.find(table_name)->second.get_all_data(),
                     column_names,
                     condition_column_name,
                     condition_column_value)
@@ -185,10 +185,10 @@ auto WhereClauseParser::get_data_filtered_by_greater_than_or_equal(
             continue;
         }
 
-        filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-            column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+        filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+            column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                 ">=",
-                database.value().tables.find(table_name)->second.get_all_data(),
+                database->tables.find(table_name)->second.get_all_data(),
                 column_names,
                 condition_column_name,
                 condition_column_value)
@@ -219,10 +219,10 @@ auto WhereClauseParser::get_data_filtered_by_less_than(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     "<",
-                    database.value().tables.find(table_name)->second.get_all_data(),
+                    database->tables.find(table_name)->second.get_all_data(),
                     column_names,
                     condition_column_name,
                     condition_column_value)
@@ -235,10 +235,10 @@ auto WhereClauseParser::get_data_filtered_by_less_than(
             continue;
         }
 
-        filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-            column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+        filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+            column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                 "<",
-                database.value().tables.find(table_name)->second.get_all_data(),
+                database->tables.find(table_name)->second.get_all_data(),
                 column_names,
                 condition_column_name,
                 condition_column_value)
@@ -269,10 +269,10 @@ auto WhereClauseParser::get_data_filtered_by_less_than_or_equal(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     "<=",
-                    database.value().tables.find(table_name)->second.get_all_data(),
+                    database->tables.find(table_name)->second.get_all_data(),
                     column_names,
                     condition_column_name,
                     condition_column_value)
@@ -285,10 +285,10 @@ auto WhereClauseParser::get_data_filtered_by_less_than_or_equal(
             continue;
         }
 
-        filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-            column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+        filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+            column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                 "<=",
-                database.value().tables.find(table_name)->second.get_all_data(),
+                database->tables.find(table_name)->second.get_all_data(),
                 column_names,
                 condition_column_name,
                 condition_column_value)
@@ -319,10 +319,10 @@ auto WhereClauseParser::get_data_filtered_by_like(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     "LIKE",
-                    database.value().tables.find(table_name)->second.get_all_data(),
+                    database->tables.find(table_name)->second.get_all_data(),
                     column_names,
                     condition_column_name,
                     condition_column_value)
@@ -335,10 +335,10 @@ auto WhereClauseParser::get_data_filtered_by_like(
             continue;
         }
 
-        filtered_data = database.value().tables.find(table_name)->second.get_all_data_from(
-            column_names, parser.database.value().get_table_by_name(table_name).get_data_filtered_by(
+        filtered_data = database->tables.find(table_name)->second.get_all_data_from(
+            column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
                 "LIKE",
-                database.value().tables.find(table_name)->second.get_all_data(),
+                database->tables.find(table_name)->second.get_all_data(),
                 column_names,
                 condition_column_name,
                 condition_column_value)

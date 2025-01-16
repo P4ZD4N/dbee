@@ -46,7 +46,7 @@ auto InsertParser::parse_insert_query(const std::vector<std::string>& query_elem
         }
     }
 
-    parser.database.value().insert_data(table_name, cleaned_values);
+    parser.database->insert_data(table_name, cleaned_values);
 }
 
 auto InsertParser::find_index(const std::vector<std::string> &vec, const std::string &value) -> int {
