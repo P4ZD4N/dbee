@@ -6,6 +6,6 @@
 #include "../database/database.h"
 
 struct Serializer {
-    static auto serialize_database(const std::unordered_map<std::string, Table>& tables) -> void;
+    static auto save_databases_to_file() -> void;
 };
 

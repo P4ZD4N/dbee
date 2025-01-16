@@ -34,44 +34,32 @@ auto format_as(const Constraint constraint) {
 auto format_as(const std::pair<Table*, std::string>& pair) -> std::string {
     if (pair.first == nullptr) return "";
 
-    return "(" + pair.first->name + ", " + pair.second + ")";
+    return pair.first->name + "." + pair.second;
 }
 
 
-auto Serializer::serialize_database(const std::unordered_map<std::string, Table>& tables) -> void {
-
+auto Serializer::save_databases_to_file() -> void {
 
     auto file = std::fstream("../../data.txt", std::ios::out);
+
     if (!file.is_open()) {
-        throw std::runtime_error("Failed to open file: data.txt");
+        fmt::println("Failed to open file: data.txt");
+        return;
     }
 
-    for (const auto& [name, table] : tables) {
-        fmt::println(file, "{}", name);
-        fmt::println(file, "{}", "");
+    for (const auto& [database_name, database] : Database::databases) {
+        fmt::println(file, "{}", database_name);
+        for (const auto& [name, table] : database->tables) {
+            fmt::println(file, "{}", name);
+            fmt::println(file, "{}", table.column_names);
+            fmt::println(file, "{}", table.column_types);
+            fmt::println(file, "{}", table.column_constraints);
+            fmt::println(file, "{}", table.column_foreign_keys);
 
-        fmt::println(file, "{}", table.column_names);
-
-        fmt::println(file, "{}", "");
-
-        fmt::println(file, "{}", table.column_types);
-
-        fmt::println(file, "{}", "");
-
-        fmt::println(file, "{}", table.column_constraints);
-
-        fmt::println(file, "{}", "");
-
-        fmt::println(file, "{}", table.column_foreign_keys);
-
-        fmt::println(file, "{}", "");
-
-        for (const auto& row : table.rows) {
-            fmt::println(file, "{}", row);
+            for (const auto& row : table.rows) {
+                fmt::println(file, "{}", row);
+            }
         }
-
-        fmt::println(file, "{}", "");
-
         fmt::println(file, "{}", "-");
     }
 }

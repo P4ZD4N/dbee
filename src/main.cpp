@@ -27,8 +27,20 @@ int main() {
     parser.parse_query("SELECT * FROM users, pets");
     // WHERE id > 1 && name LIKE M%
     // parser.parse_query("SELECT id, name, weight FROM users, pets WHERE id != 1 && name != Dog || id = 1");
-    parser.parse_query("SAVE");
 
+    parser.parse_query("DATABASE CREATE db2");
+    parser.parse_query("DATABASE USE db2");
+    parser.parse_query("TABLE CREATE users WITH COLUMNS id(INTEGER)[PRIMARY_KEY], name(TEXT)[NOT_NULL]");
+    parser.parse_query("TABLE CREATE pets WITH COLUMNS id(INTEGER)[PRIMARY_KEY], name(TEXT)[NOT_NULL], owner_id(INTEGER)[NOT_NULL]{users.id}");
+    parser.parse_query("INSERT INTO users VALUES 1, cat");
+    parser.parse_query("INSERT INTO users VALUES 2, Mateusz");
+    parser.parse_query("INSERT INTO users VALUES 3, Doggy");
+    parser.parse_query("INSERT INTO users VALUES 4, Cata");
+    parser.parse_query("INSERT INTO pets VALUES 2, Dog, 1");
+    parser.parse_query("INSERT INTO pets VALUES 3, Cat, 3");
+
+
+    parser.parse_query("SAVE");
     //users.id, users.name, pets.name, height, weight
     auto query = std::string();
     while (true) {
