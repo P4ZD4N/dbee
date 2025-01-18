@@ -29,6 +29,11 @@ auto UpdateParser::parse_update_query(const std::vector<std::string> &query_elem
         std::erase(new_value, ',');
         if (new_value == "WHERE") break;
 
+        if (equality_operator != "=") {
+            fmt::println("Invalid equality operator in query: {}", equality_operator);
+            return;
+        }
+
         columns_and_new_values.push_back({column_name, equality_operator, new_value});
     }
 
@@ -49,46 +54,51 @@ auto UpdateParser::parse_update_query(const std::vector<std::string> &query_elem
         if (comparison_operator == "=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_equality(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "<>" || comparison_operator == "!=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_inequality(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == ">") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == ">=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than_or_equal(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "<") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "<=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than_or_equal(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "LIKE") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_like(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (it + 3 < query_elements.end()) results_and_comparison_operators.push_back({{*(it + 3)}});
+    }
+
+    if (results_and_comparison_operators.size() == 1 && results_and_comparison_operators.at(0).empty()) {
+        fmt::println("No rows were updated because no records met the specified criteria");
+        return;
     }
 
     auto results = std::vector<std::vector<std::string>>{};

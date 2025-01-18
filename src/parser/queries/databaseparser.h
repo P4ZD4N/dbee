@@ -11,6 +11,6 @@ struct DatabaseParser {
 
     explicit DatabaseParser(Parser& parser) : parser(parser) {}
 
-    auto parse_database_query(const std::vector<std::string>& query_elements) -> void;
+    auto parse_database_query(const std::vector<std::string>& query_elements) const -> void;
 };
 

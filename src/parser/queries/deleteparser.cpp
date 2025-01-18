@@ -17,6 +17,11 @@ auto DeleteParser::parse_delete_query(const std::vector<std::string> &query_elem
     const auto& table_name = query_elements.at(2);
 
     if (where_clause_index == -1) {
+        if (!parser.database->tables.contains(table_name)) {
+            fmt::println("Table with name '{}' does not exist in database with name: '{}'!", table_name, parser.database->name);
+            return;
+        }
+
         parser.database->get_table_by_name(table_name).delete_all_rows();
         return;
     }
@@ -35,46 +40,51 @@ auto DeleteParser::parse_delete_query(const std::vector<std::string> &query_elem
         if (comparison_operator == "=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_equality(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "<>" || comparison_operator == "!=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_inequality(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == ">") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == ">=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than_or_equal(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "<") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "<=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than_or_equal(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "LIKE") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_like(
-                    {table_name}, {"*"}, condition_column_name, condition_column_value, false));
+                    {table_name}, {"*"}, condition_column_name, condition_column_value, false, {}));
         }
 
         if (it + 3 < query_elements.end()) results_and_comparison_operators.push_back({{*(it + 3)}});
+    }
+
+    if (results_and_comparison_operators.size() == 1 && results_and_comparison_operators.at(0).empty()) {
+        fmt::println("No rows were deleted because no records met the specified criteria");
+        return;
     }
 
     auto results = std::vector<std::vector<std::string>>{};

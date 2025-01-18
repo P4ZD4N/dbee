@@ -1,6 +1,11 @@
 #include "databaseparser.h"
 
-auto DatabaseParser::parse_database_query(const std::vector<std::string>& query_elements) -> void {
+auto DatabaseParser::parse_database_query(const std::vector<std::string>& query_elements) const -> void {
+
+    if (query_elements.size() != 3) {
+        fmt::println("Query with DATABASE clause should contain three elements!");
+        return;
+    }
 
     if (query_elements.at(1) == "CREATE") {
         const auto& database_name = query_elements.at(2);
@@ -8,6 +13,9 @@ auto DatabaseParser::parse_database_query(const std::vector<std::string>& query_
     } else if (query_elements.at(1) == "USE") {
         const auto& database_name = query_elements.at(2);
         parser.database = Database::get_database(database_name);
+
+        if (parser.database == nullptr) return;
+
         fmt::println("Selected database with name: {}", parser.database->name);
     } else if (query_elements.at(1) == "DROP") {
         const auto& database_name = query_elements.at(2);

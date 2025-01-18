@@ -136,7 +136,8 @@ auto Table::find_index(const std::vector<std::string> &vec, const std::string &v
 auto Table::add_column(
     const std::string& column_name,
     const ColumnType& column_type,
-    const std::vector<Constraint>& new_column_constraints
+    const std::vector<Constraint>& new_column_constraints,
+    const std::pair<Table*, std::string>& new_column_foreign_key
 ) -> void {
 
     const auto column_index = find_index(column_names, column_name);
@@ -149,6 +150,7 @@ auto Table::add_column(
     column_names.push_back(column_name);
     column_types.push_back(column_type);
     column_constraints.push_back(new_column_constraints);
+    column_foreign_keys.push_back(new_column_foreign_key);
 
     for (auto& row : rows) row.emplace_back("");
 
@@ -195,7 +197,7 @@ auto Table::update_all_rows(const std::string& column_name, const std::string& n
 
     for (auto& row : rows) row[column_index] = new_value;
 
-    fmt::println("Successfully updated all rows in table '{}'", name);
+    fmt::println("Successfully updated column '{}' in all rows in table '{}'", column_name, name);
 }
 
 auto Table::update_specific_rows(
@@ -230,8 +232,8 @@ auto Table::update_specific_rows(
         if (std::ranges::find(column_constraints.at(column_index), Constraint::PRIMARY_KEY) != column_constraints.at(column_index).end() ||
             std::ranges::find(column_constraints.at(column_index), Constraint::UNIQUE) != column_constraints.at(column_index).end()) {
             fmt::println("Column with name '{}' has constraints, which protects against this operation!", column_name);
-            continue;
-            }
+            return;
+        }
 
         for (const auto& row_index : rows_to_update) rows[row_index][column_index] = new_value;
     }

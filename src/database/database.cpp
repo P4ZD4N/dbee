@@ -21,6 +21,16 @@ auto Database::create_table(
         return;
     }
 
+    if (column_names.size() != column_types.size()) {
+        fmt::println("Number of column names and column types must be equal!");
+        return;
+    }
+
+    if (column_names.size() != column_constraints.size()) {
+        fmt::println("Number of column names and column constraints must be equal!");
+        return;
+    }
+
     const auto new_table = Table(name, column_names, column_types, column_constraints, column_foreign_keys);
     tables.insert({name, new_table});
 

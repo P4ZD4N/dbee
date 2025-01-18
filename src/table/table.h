@@ -28,14 +28,7 @@ public:
           column_names(column_names),
           column_types(column_types),
           column_constraints(column_constraints),
-          column_foreign_keys(column_foreign_keys) {
-
-        if (column_names.size() != column_types.size())
-            throw std::invalid_argument("Number of column names and column types must be equal!");
-
-        if (column_names.size() != column_constraints.size())
-            throw std::invalid_argument("Number of column names and column constraints must be equal!");
-    }
+          column_foreign_keys(column_foreign_keys) {}
 
     auto insert_row(const std::vector<std::string>& data) -> void;
 
@@ -54,7 +47,12 @@ public:
         const std::string& condition_column_value
     ) const -> std::vector<std::vector<std::string>>;
 
-    auto add_column(const std::string& column_name, const ColumnType& column_type, const std::vector<Constraint>& new_column_constraints) -> void;
+    auto add_column(
+        const std::string& column_name,
+        const ColumnType& column_type,
+        const std::vector<Constraint>& new_column_constraints,
+        const std::pair<Table*, std::string>& new_column_foreign_key
+    ) -> void;
 
     auto remove_column(const std::string& column_name) -> void;
 

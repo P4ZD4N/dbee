@@ -6,6 +6,7 @@
 #include "fmt/ranges.h"
 
 enum class ColumnType {
+    INVALID,
     INTEGER,
     TEXT,
     FLOAT

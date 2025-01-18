@@ -70,7 +70,6 @@ auto Serializer::save_databases_to_file() -> void {
             fmt::println(file, "{}", table.column_types);
             fmt::println(file, "{}", table.column_constraints);
             fmt::println(file, "{}", table.column_foreign_keys);
-            fmt::println("{}", table.column_foreign_keys);
 
             for (const auto& row : table.rows) {
                 fmt::println(file, "{}", row);

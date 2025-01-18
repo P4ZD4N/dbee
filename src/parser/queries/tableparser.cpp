@@ -16,6 +16,15 @@ auto TableParser::parse_table_query(const std::vector<std::string> &query_elemen
                 auto column_foreign_keys = std::vector<std::pair<Table*, std::string>>{};
 
                 for (const auto& detail : column_details) {
+                    if (detail.find('(') == std::string::npos &&
+                        detail.find(')') == std::string::npos &&
+                        detail.find('[') == std::string::npos &&
+                        detail.find(']') == std::string::npos
+                    ) {
+                        fmt::println("Invalid format of column: {}", detail);
+                        return;
+                    }
+
                     auto column_name = std::string(detail.begin(), std::ranges::find(detail, '('));
 
                     if (std::ranges::find(column_names, column_name) != column_names.end()) {

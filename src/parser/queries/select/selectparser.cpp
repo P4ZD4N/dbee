@@ -8,8 +8,6 @@ auto SelectParser::parse_select_query(const std::vector<std::string>& query_elem
 
     if (!parser.is_database_selected()) return;
 
-    auto database = parser.database;
-
     const auto from_clause_index = find_index(query_elements, "FROM");
     const auto inner_clause_index = find_index(query_elements, "INNER");
     const auto left_clause_index = find_index(query_elements, "LEFT");
@@ -563,6 +561,12 @@ auto SelectParser::print_appropriate_columns_without_joins(
     if (where_clause_index == -1) {
         for (auto table_name : table_names) {
             std::erase(table_name, ',');
+
+            if (!database->tables.contains(table_name)) {
+                fmt::println("Table with name '{}' doesn't exist in database '{}'!", table_name, database->name);
+                return;
+            }
+
             auto data_from_table = column_names.size() == 1 && column_names.at(0) == "*" ?
                 database->tables.find(table_name)->second.get_all_data() :
                 database->tables.find(table_name)->second.get_all_data_from(
@@ -584,46 +588,51 @@ auto SelectParser::print_appropriate_columns_without_joins(
         if (comparison_operator == "=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_equality(
-                    table_names, column_names, condition_column_name, condition_column_value, false));
+                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "<>" || comparison_operator == "!=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_inequality(
-                    table_names, column_names, condition_column_name, condition_column_value, false));
+                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == ">") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than(
-                    table_names, column_names, condition_column_name, condition_column_value, false));
+                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == ">=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than_or_equal(
-                    table_names, column_names, condition_column_name, condition_column_value, false));
+                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "<") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than(
-                    table_names, column_names, condition_column_name, condition_column_value, false));
+                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "<=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than_or_equal(
-                    table_names, column_names, condition_column_name, condition_column_value, false));
+                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
         }
 
         if (comparison_operator == "LIKE") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_like(
-                    table_names, column_names, condition_column_name, condition_column_value, false));
+                    table_names, column_names, condition_column_name, condition_column_value, false, {}));
         }
 
         if (it + 3 < query_elements.end()) results_and_comparison_operators.push_back({{*(it + 3)}});
+    }
+
+    if (results_and_comparison_operators.size() == 1 && results_and_comparison_operators.at(0).empty()) {
+        fmt::println("{}", results_and_comparison_operators.at(0));
+        return;
     }
 
     auto results = std::vector<std::vector<std::string>>{};
@@ -680,7 +689,6 @@ auto SelectParser::print_appropriate_columns_with_joins(
     const std::vector<std::string>& column_names
 ) const -> void {
 
-    const auto database = parser.database;
     const auto where_clause_parser = WhereClauseParser(parser);
     auto select_results = std::vector<std::vector<std::string>>{};
     auto flattened_results = std::vector<std::vector<std::string>>{};
@@ -733,46 +741,51 @@ auto SelectParser::print_appropriate_columns_with_joins(
         if (comparison_operator == "=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_equality(
-                    table_names, column_names, condition_column_name, condition_column_value, true));
+                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
         }
 
         if (comparison_operator == "<>" || comparison_operator == "!=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_inequality(
-                    table_names, column_names, condition_column_name, condition_column_value, true));
+                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
         }
 
         if (comparison_operator == ">") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than(
-                    table_names, column_names, condition_column_name, condition_column_value, true));
+                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
         }
 
         if (comparison_operator == ">=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_greater_than_or_equal(
-                    table_names, column_names, condition_column_name, condition_column_value, true));
+                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
         }
 
         if (comparison_operator == "<") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than(
-                    table_names, column_names, condition_column_name, condition_column_value, true));
+                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
         }
 
         if (comparison_operator == "<=") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_less_than_or_equal(
-                    table_names, column_names, condition_column_name, condition_column_value, true));
+                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
         }
 
         if (comparison_operator == "LIKE") {
             results_and_comparison_operators.push_back(
                 where_clause_parser.get_data_filtered_by_like(
-                    table_names, column_names, condition_column_name, condition_column_value, true));
+                    table_names, column_names, condition_column_name, condition_column_value, true, select_results));
         }
 
         if (it + 3 < query_elements.end()) results_and_comparison_operators.push_back({{*(it + 3)}});
+    }
+
+    if (results_and_comparison_operators.size() == 1 && results_and_comparison_operators.at(0).empty()) {
+        fmt::println("{}", results_and_comparison_operators.at(0));
+        return;
     }
 
     auto results = std::vector<std::vector<std::string>>{};
@@ -853,6 +866,7 @@ auto SelectParser::validate_tables_and_columns(
 
     if (!parser.database->tables.contains(right_table_name)) {
         fmt::println("Table with name '{}' not exists in database '{}'!", right_table_name, parser.database->name);
+        return false;
     }
 
     if (left_table_name != query_elements.at(from_clause_index + 1)) {

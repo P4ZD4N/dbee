@@ -5,7 +5,8 @@ auto WhereClauseParser::get_data_filtered_by_equality(
     const std::vector<std::string> &column_names,
     const std::string &condition_column_name,
     const std::string &condition_column_value,
-    const bool is_select_with_join
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>>& select_results
 ) const -> std::vector<std::vector<std::string>> {
     const auto database = parser.database;
     auto flattened_results = std::vector<std::vector<std::string>>{};
@@ -20,20 +21,22 @@ auto WhereClauseParser::get_data_filtered_by_equality(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
+            if (!database->tables.contains(table_name)) continue;
+
+            filtered_data = parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     "=",
-                    database->tables.find(table_name)->second.get_all_data(),
-                    database->tables.find(table_name)->second.column_names,
+                    select_results,
+                    effective_column_names,
                     condition_column_name,
-                    condition_column_value)
-            );
+                    condition_column_value);
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
             }
 
             continue;
         }
+
+        if (!database->tables.contains(table_name)) continue;
 
         filtered_data = database->tables.find(table_name)->second.get_all_data_from(
             column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
@@ -54,7 +57,8 @@ auto WhereClauseParser::get_data_filtered_by_inequality(
     const std::vector<std::string> &column_names,
     const std::string &condition_column_name,
     const std::string &condition_column_value,
-    const bool is_select_with_join
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>>& select_results
 ) const -> std::vector<std::vector<std::string> > {
     const auto database = parser.database;
     auto flattened_results = std::vector<std::vector<std::string>>{};
@@ -69,14 +73,14 @@ auto WhereClauseParser::get_data_filtered_by_inequality(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
+            if (!database->tables.contains(table_name)) continue;
+
+            filtered_data = parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     "!=",
-                    database->tables.find(table_name)->second.get_all_data(),
-                    column_names,
+                    select_results,
+                    effective_column_names,
                     condition_column_name,
-                    condition_column_value)
-            );
+                    condition_column_value);
 
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
@@ -84,6 +88,8 @@ auto WhereClauseParser::get_data_filtered_by_inequality(
 
             continue;
         }
+
+        if (!database->tables.contains(table_name)) continue;
 
         filtered_data = database->tables.find(table_name)->second.get_all_data_from(
             column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
@@ -104,7 +110,8 @@ auto WhereClauseParser::get_data_filtered_by_greater_than(
     const std::vector<std::string> &column_names,
     const std::string &condition_column_name,
     const std::string &condition_column_value,
-    const bool is_select_with_join
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>>& select_results
 ) const -> std::vector<std::vector<std::string> > {
     const auto database = parser.database;
     auto flattened_results = std::vector<std::vector<std::string>>{};
@@ -119,14 +126,14 @@ auto WhereClauseParser::get_data_filtered_by_greater_than(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
+            if (!database->tables.contains(table_name)) continue;
+
+            filtered_data = parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     ">",
-                    database->tables.find(table_name)->second.get_all_data(),
-                    column_names,
+                    select_results,
+                    effective_column_names,
                     condition_column_name,
-                    condition_column_value)
-            );
+                    condition_column_value);
 
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
@@ -134,6 +141,8 @@ auto WhereClauseParser::get_data_filtered_by_greater_than(
 
             continue;
         }
+
+        if (!database->tables.contains(table_name)) continue;
 
         filtered_data = database->tables.find(table_name)->second.get_all_data_from(
             column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
@@ -154,7 +163,8 @@ auto WhereClauseParser::get_data_filtered_by_greater_than_or_equal(
     const std::vector<std::string> &column_names,
     const std::string &condition_column_name,
     const std::string &condition_column_value,
-    const bool is_select_with_join
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>>& select_results
 ) const -> std::vector<std::vector<std::string> > {
     const auto database = parser.database;
     auto flattened_results = std::vector<std::vector<std::string>>{};
@@ -169,14 +179,14 @@ auto WhereClauseParser::get_data_filtered_by_greater_than_or_equal(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
+            if (!database->tables.contains(table_name)) continue;
+
+            filtered_data = parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     ">=",
-                    database->tables.find(table_name)->second.get_all_data(),
-                    column_names,
+                    select_results,
+                    effective_column_names,
                     condition_column_name,
-                    condition_column_value)
-            );
+                    condition_column_value);
 
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
@@ -184,6 +194,8 @@ auto WhereClauseParser::get_data_filtered_by_greater_than_or_equal(
 
             continue;
         }
+
+        if (!database->tables.contains(table_name)) continue;
 
         filtered_data = database->tables.find(table_name)->second.get_all_data_from(
             column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
@@ -204,7 +216,8 @@ auto WhereClauseParser::get_data_filtered_by_less_than(
     const std::vector<std::string> &column_names,
     const std::string &condition_column_name,
     const std::string &condition_column_value,
-    const bool is_select_with_join
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>>& select_results
 ) const -> std::vector<std::vector<std::string> > {
     const auto database = parser.database;
     auto flattened_results = std::vector<std::vector<std::string>>{};
@@ -219,14 +232,14 @@ auto WhereClauseParser::get_data_filtered_by_less_than(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
+            if (!database->tables.contains(table_name)) continue;
+
+            filtered_data = parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     "<",
-                    database->tables.find(table_name)->second.get_all_data(),
-                    column_names,
+                    select_results,
+                    effective_column_names,
                     condition_column_name,
-                    condition_column_value)
-            );
+                    condition_column_value);
 
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
@@ -234,6 +247,8 @@ auto WhereClauseParser::get_data_filtered_by_less_than(
 
             continue;
         }
+
+        if (!database->tables.contains(table_name)) continue;
 
         filtered_data = database->tables.find(table_name)->second.get_all_data_from(
             column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
@@ -254,7 +269,8 @@ auto WhereClauseParser::get_data_filtered_by_less_than_or_equal(
     const std::vector<std::string> &column_names,
     const std::string &condition_column_name,
     const std::string &condition_column_value,
-    const bool is_select_with_join
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>>& select_results
 ) const -> std::vector<std::vector<std::string> > {
     const auto database = parser.database;
     auto flattened_results = std::vector<std::vector<std::string>>{};
@@ -269,14 +285,14 @@ auto WhereClauseParser::get_data_filtered_by_less_than_or_equal(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
+            if (!database->tables.contains(table_name)) continue;
+
+            filtered_data = parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     "<=",
-                    database->tables.find(table_name)->second.get_all_data(),
-                    column_names,
+                    select_results,
+                    effective_column_names,
                     condition_column_name,
-                    condition_column_value)
-            );
+                    condition_column_value);
 
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
@@ -284,6 +300,8 @@ auto WhereClauseParser::get_data_filtered_by_less_than_or_equal(
 
             continue;
         }
+
+        if (!database->tables.contains(table_name)) continue;
 
         filtered_data = database->tables.find(table_name)->second.get_all_data_from(
             column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
@@ -304,7 +322,8 @@ auto WhereClauseParser::get_data_filtered_by_like(
     const std::vector<std::string> &column_names,
     const std::string &condition_column_name,
     const std::string &condition_column_value,
-    const bool is_select_with_join
+    const bool is_select_with_join,
+    const std::vector<std::vector<std::string>>& select_results
 ) const -> std::vector<std::vector<std::string> > {
     const auto database = parser.database;
     auto flattened_results = std::vector<std::vector<std::string>>{};
@@ -319,14 +338,14 @@ auto WhereClauseParser::get_data_filtered_by_like(
                 get_column_names_from_both(table_names) :
                 column_names;
 
-            filtered_data = database->tables.find(table_name)->second.get_all_data_from(
-                effective_column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
+            if (!database->tables.contains(table_name)) continue;
+
+            filtered_data = parser.database->get_table_by_name(table_name).get_data_filtered_by(
                     "LIKE",
-                    database->tables.find(table_name)->second.get_all_data(),
-                    column_names,
+                    select_results,
+                    effective_column_names,
                     condition_column_name,
-                    condition_column_value)
-            );
+                    condition_column_value);
 
             for (const auto& data : filtered_data) {
                 if (std::ranges::find(flattened_results, data) == flattened_results.end()) flattened_results.push_back(data);
@@ -334,6 +353,8 @@ auto WhereClauseParser::get_data_filtered_by_like(
 
             continue;
         }
+
+        if (!database->tables.contains(table_name)) continue;
 
         filtered_data = database->tables.find(table_name)->second.get_all_data_from(
             column_names, parser.database->get_table_by_name(table_name).get_data_filtered_by(
