@@ -10,7 +10,8 @@ auto AlterParser::parse_alter_query(const std::vector<std::string> &query_elemen
     }
 
     const auto column_clause_index = find_index(query_elements, "COLUMN");
-    const auto operation_clause_index = column_clause_index - 1;
+    const auto constraint_clause_index = find_index(query_elements, "CONSTRAINT");
+    const auto operation_clause_index = column_clause_index - 1 < 0 ? constraint_clause_index - 1 : column_clause_index - 1;
     const auto& table_name = query_elements.at(2);
 
     if (!parser.database->tables.contains(table_name)) {
@@ -18,12 +19,17 @@ auto AlterParser::parse_alter_query(const std::vector<std::string> &query_elemen
         return;
     }
 
-    if (column_clause_index == -1 || column_clause_index != 4) {
-        fmt::println("Query with ALTER clause should contain COLUMN clause on proper position!");
+    if ((column_clause_index == -1 || column_clause_index != 4) && (constraint_clause_index == -1 || constraint_clause_index != 4)) {
+        fmt::println("Query with ALTER clause should contain COLUMN / CONSTRAINT clause on proper position!");
         return;
     }
 
     if (query_elements.at(operation_clause_index) == "ADD") {
+        if (constraint_clause_index != -1) {
+            process_add_constraint(query_elements);
+            return;
+        }
+
         if (query_elements.size() != 6) {
             fmt::println("Query with ALTER clause and ADD operation should contain proper new column details!");
             return;
@@ -147,3 +153,84 @@ auto AlterParser::is_foreign_key_valid(
     return true;
 }
 
+auto AlterParser::process_add_constraint(const std::vector<std::string> &query_elements) const -> void {
+    auto& table = parser.database->get_table_by_name(query_elements.at(2));
+    const auto& constraint = query_elements.at(5);
+
+    if (constraint == "FOREIGN_KEY") {
+        const auto references_clause_index = find_index(query_elements, "REFERENCES");
+
+        if (references_clause_index == -1 || references_clause_index != 6) {
+            fmt::println("Query with ALTER clause should contain REFERENCES clause on proper position to add FOREIGN_KEY constraint!");
+            return;
+        }
+
+        const auto& foreign_key_details = query_elements.at(7);
+
+        if (foreign_key_details.find('{') == std::string::npos && foreign_key_details.find('}') == std::string::npos) {
+            fmt::println("Invalid format of new foreign key: {}", foreign_key_details);
+            return;
+        }
+
+        const auto column_name = std::string(foreign_key_details.begin(), std::ranges::find(foreign_key_details, '{'));
+        const auto column_index_in_table = Table::find_index(table.column_names, column_name);
+
+        if (column_index_in_table == -1) {
+            fmt::println("Column with name '{}' does not exist in table with name: '{}'!", column_name, table.name);
+            return;
+        }
+
+        const auto column_type = table.column_types.at(column_index_in_table);
+
+        if (table.column_foreign_keys.at(column_index_in_table).first != nullptr) {
+            fmt::println("Column with name '{}' has already other FOREIGN_KEY constraint!", column_name);
+            return;
+        }
+
+        auto column_foreign_key = std::pair<Table*, std::string>{};
+        auto column_foreign_key_string = get_foreign_key_from_curly_braces(foreign_key_details);
+
+        if (!column_foreign_key_string.empty()) {
+            const auto [foreign_table_name, foreign_column_name] = split_string_with_dot(column_foreign_key_string);
+
+            if (!is_foreign_key_valid(foreign_table_name, foreign_column_name, column_type_to_string(column_type))) return;
+
+            auto& foreign_table = parser.database->get_table_by_name(foreign_table_name);
+            column_foreign_key = std::pair(&foreign_table, foreign_column_name);
+        } else {
+            fmt::println("Invalid FOREIGN_KEY constraint: {}", column_foreign_key_string);
+            return;
+        }
+
+        table.column_constraints.at(column_index_in_table).push_back(Constraint::FOREIGN_KEY);
+        table.column_foreign_keys.at(column_index_in_table) = column_foreign_key;
+        fmt::println("Successfully added FOREIGN_KEY constraint to column with name: '{}'", column_name);
+        return;
+    }
+
+    const auto on_clause_index = find_index(query_elements, "ON");
+
+    if (on_clause_index == -1 || on_clause_index != 6) {
+        fmt::println("Query with ALTER clause should contain ON clause on proper position to add constraint!");
+        return;
+    }
+
+    const auto& column_name = query_elements.at(7);
+    const auto column_index_in_table = Table::find_index(table.column_names, column_name);
+
+    if (column_index_in_table == -1) {
+        fmt::println("Column with name '{}' does not exist in table with name: '{}'!", column_name, table.name);
+        return;
+    }
+
+    if (string_to_constraint(constraint) == Constraint::INVALID) return;
+
+    if (std::ranges::find(table.column_constraints.at(column_index_in_table), string_to_constraint(constraint)) !=
+        table.column_constraints.at(column_index_in_table).end()) {
+        fmt::println("Column already has this constraint!");
+        return;
+    }
+
+    table.column_constraints.at(column_index_in_table).push_back(string_to_constraint(constraint));
+    fmt::println("Successfully added constraint to column with name: '{}'", column_name);
+}

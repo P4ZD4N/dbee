@@ -19,4 +19,5 @@ private:
         const std::string& foreign_column_name,
         const std::string& column_type
     ) const -> bool;
+    auto process_add_constraint(const std::vector<std::string> &query_elements) const -> void;
 };

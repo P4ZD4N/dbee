@@ -49,3 +49,12 @@ inline auto strings_to_column_types(const std::vector<std::string> vec) -> std::
 
      return newVec;
 }
+
+inline auto column_type_to_string(const ColumnType column_type) -> std::string {
+    switch (column_type) {
+        case ColumnType::INTEGER: return "INTEGER";
+        case ColumnType::TEXT: return "TEXT";
+        case ColumnType::FLOAT: return "FLOAT";
+        default: return "INVALID";
+    }
+}

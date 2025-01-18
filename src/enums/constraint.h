@@ -6,6 +6,7 @@
 #include <fmt/ranges.h>
 
 enum class Constraint {
+    INVALID,
     NOT_NULL,
     UNIQUE,
     PRIMARY_KEY,
@@ -35,4 +36,21 @@ inline auto strings_to_constraints(std::vector<std::string> vec) -> std::vector<
     }
 
     return constraint_vec;
+}
+
+inline auto string_to_constraint(const std::string& str) -> Constraint {
+
+    static const auto constraint_map = std::unordered_map<std::string, Constraint>{
+                {"NOT_NULL", Constraint::NOT_NULL},
+                {"UNIQUE", Constraint::UNIQUE},
+                {"PRIMARY_KEY", Constraint::PRIMARY_KEY},
+                {"FOREIGN_KEY", Constraint::FOREIGN_KEY}
+    };
+
+    auto it = constraint_map.find(str);
+
+    if (it != constraint_map.end()) return it->second;
+
+    fmt::println("Invalid constraint: {}", str);
+    return {};
 }
