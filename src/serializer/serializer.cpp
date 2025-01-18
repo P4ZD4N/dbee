@@ -91,16 +91,16 @@ auto Serializer::upload_databases_from_file() -> void {
     }
 
     auto line = std::string("");
-    Database* current_database = nullptr;
-    std::string table_name;
-    std::vector<std::string> column_names;
-    std::vector<ColumnType> column_types;
-    std::vector<std::vector<Constraint>> column_constraints;
-    std::vector<std::pair<Table*, std::string>> column_foreign_keys;
-    std::vector<std::vector<std::string>> rows;
+    auto current_database = static_cast<Database*>(nullptr);
+    auto table_name = std::string("");
+    auto column_names = std::vector<std::string>{};
+    auto column_types = std::vector<ColumnType>{};
+    auto column_constraints = std::vector<std::vector<Constraint>>{};
+    auto column_foreign_keys = std::vector<std::pair<Table*, std::string>>{};
+    auto rows = std::vector<std::vector<std::string>>{};
+    auto line_number = 0;
+    auto repeat_iteration = false;
 
-    int line_number = 0;
-    bool repeat_iteration = false;
     while (repeat_iteration || std::getline(file, line)) {
         auto handled_by_switch = false;
 
