@@ -118,6 +118,7 @@ auto Serializer::upload_databases_from_file() -> void {
             } break;
 
             case 1: {
+                if (line.empty()) break;
                 table_name = line;
 
                 column_names.clear();
@@ -249,7 +250,7 @@ auto Serializer::parse_foreign_keys(const std::string& line, Database* current_d
 
         if (item.empty()) result.emplace_back(nullptr, "");
 
-        const size_t dot_pos = item.find('.');
+        const auto dot_pos = item.find('.');
         if (dot_pos != std::string::npos) {
             const auto table_name = item.substr(0, dot_pos);
             const auto column_name = item.substr(dot_pos + 1);
